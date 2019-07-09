@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/openzipkin/zipkin-go/model"
 	"github.com/openzipkin/zipkin-go/reporter"
-	"github.com/Janrpher553/micro-core/log"
+	"github.com/Jarnpher553/micro-core/log"
 )
 
 // logrusReporter 日志报告者类，用于tracer输出

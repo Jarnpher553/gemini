@@ -5,7 +5,7 @@ import (
 	"github.com/openzipkin/zipkin-go"
 	"github.com/openzipkin/zipkin-go/model"
 	"github.com/openzipkin/zipkin-go/reporter"
-	"github.com/Janrpher553/micro-core/log"
+	"github.com/Jarnpher553/micro-core/log"
 )
 
 // Tracer 跟踪类

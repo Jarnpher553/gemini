@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Janrpher553/micro-core/log"
-	"github.com/Janrpher553/micro-core/service"
-	"github.com/Janrpher553/micro-core/uuid"
+	"github.com/Jarnpher553/micro-core/log"
+	"github.com/Jarnpher553/micro-core/service"
+	"github.com/Jarnpher553/micro-core/uuid"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

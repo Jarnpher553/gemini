@@ -2,7 +2,7 @@ package metric
 
 import (
 	"github.com/rcrowley/go-metrics"
-	"github.com/Janrpher553/micro-core/log"
+	"github.com/Jarnpher553/micro-core/log"
 	"time"
 )
 

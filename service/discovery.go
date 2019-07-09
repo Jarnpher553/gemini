@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/Janrpher553/micro-core/log"
+	"github.com/Jarnpher553/micro-core/log"
 	consul "github.com/hashicorp/consul/api"
 	"math/rand"
 	"strconv"

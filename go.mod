@@ -1,4 +1,4 @@
-module github.com/Janrpher553/micro-core
+module github.com/Jarnpher553/micro-core
 
 require (
 	github.com/Jarnpher553/viper v1.4.1-0.20190619031735-b954551383d3
