@@ -2,7 +2,7 @@ package sms
 
 import (
 	"fmt"
-	"gitee.com/jarnpher_rice/micro-core/httpclient"
+	"github.com/Janrpher553/micro-core/httpclient"
 )
 
 var sms Sms

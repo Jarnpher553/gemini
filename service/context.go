@@ -3,11 +3,11 @@ package service
 import (
 	"net/http"
 
-	"gitee.com/jarnpher_rice/micro-core/erro"
-	"gitee.com/jarnpher_rice/micro-core/log"
-	"gitee.com/jarnpher_rice/micro-core/model/dto"
-	"gitee.com/jarnpher_rice/micro-core/now"
-	"gitee.com/jarnpher_rice/micro-core/uuid"
+	"github.com/Janrpher553/micro-core/erro"
+	"github.com/Janrpher553/micro-core/log"
+	"github.com/Janrpher553/micro-core/model/dto"
+	"github.com/Janrpher553/micro-core/now"
+	"github.com/Janrpher553/micro-core/uuid"
 	"github.com/gin-gonic/gin"
 )
 

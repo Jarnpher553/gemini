@@ -3,7 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"gitee.com/jarnpher_rice/micro-core/log"
+	"github.com/Janrpher553/micro-core/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"

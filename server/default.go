@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"gitee.com/jarnpher_rice/micro-core/log"
-	"gitee.com/jarnpher_rice/micro-core/router"
-	"gitee.com/jarnpher_rice/micro-core/service"
+	"github.com/Janrpher553/micro-core/log"
+	"github.com/Janrpher553/micro-core/router"
+	"github.com/Janrpher553/micro-core/service"
 	"github.com/gin-gonic/gin"
 )
 

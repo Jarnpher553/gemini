@@ -1,9 +1,9 @@
 package scheduler
 
 import (
-	"gitee.com/jarnpher_rice/micro-core/mongo"
-	"gitee.com/jarnpher_rice/micro-core/redis"
-	"gitee.com/jarnpher_rice/micro-core/repo"
+	"github.com/Janrpher553/micro-core/mongo"
+	"github.com/Janrpher553/micro-core/redis"
+	"github.com/Janrpher553/micro-core/repo"
 	"github.com/roylee0704/gron"
 	"time"
 )

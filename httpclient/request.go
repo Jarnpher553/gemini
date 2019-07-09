@@ -2,7 +2,7 @@ package httpclient
 
 import (
 	"context"
-	"gitee.com/jarnpher_rice/micro-core/tracing"
+	"github.com/Janrpher553/micro-core/tracing"
 	"github.com/openzipkin/zipkin-go"
 	"github.com/openzipkin/zipkin-go/model"
 	"gopkg.in/resty.v1"

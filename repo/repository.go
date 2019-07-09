@@ -2,8 +2,8 @@ package repo
 
 import (
 	"fmt"
-	"gitee.com/jarnpher_rice/micro-core/config"
-	"gitee.com/jarnpher_rice/micro-core/log"
+	"github.com/Janrpher553/micro-core/config"
+	"github.com/Janrpher553/micro-core/log"
 	"github.com/jinzhu/gorm"
 	"reflect"
 	"strings"

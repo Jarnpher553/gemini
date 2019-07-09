@@ -3,7 +3,7 @@ package httpclient
 import (
 	"github.com/openzipkin/zipkin-go/model"
 	"net/http"
-	"gitee.com/jarnpher_rice/micro-core/tracing"
+	"github.com/Janrpher553/micro-core/tracing"
 )
 
 // Transport http客户端自定义传输类

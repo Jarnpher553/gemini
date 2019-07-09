@@ -1,7 +1,7 @@
 package config
 
 import (
-	"gitee.com/jarnpher_rice/micro-core/log"
+	"github.com/Janrpher553/micro-core/log"
 	"github.com/Jarnpher553/viper"
 )
 import _ "github.com/Jarnpher553/viper/remote"

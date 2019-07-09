@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/satori/go.uuid"
-	guid "gitee.com/jarnpher_rice/micro-core/uuid"
+	guid "github.com/Janrpher553/micro-core/uuid"
 	"time"
 )
 
