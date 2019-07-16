@@ -1,5 +1,14 @@
 package erro
 
+type Err struct {
+	Code int
+	Msg  string
+}
+
+func (e *Err) Error() string {
+	return e.Msg
+}
+
 // 错误码
 const (
 	ErrSuccess      = 200
@@ -76,11 +85,6 @@ var ErrMsg = map[int]string{
 	ErrExistAfterSaleBill: "存在未关闭的对应设备的售后单",
 }
 
-type Err struct {
-	Code int
-	Msg  string
-}
-
-func (e *Err) Error() string {
-	return e.Msg
+func Register(code int, msg string) {
+	ErrMsg[code] = msg
 }

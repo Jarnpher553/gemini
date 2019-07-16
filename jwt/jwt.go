@@ -3,9 +3,9 @@ package jwt
 import (
 	"errors"
 	"fmt"
+	guid "github.com/Jarnpher553/micro-core/uuid"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/satori/go.uuid"
-	guid "github.com/Jarnpher553/micro-core/uuid"
 	"time"
 )
 
@@ -33,11 +33,11 @@ func New(id interface{}) (string, error) {
 		}
 	}
 	claims.StandardClaims = jwt.StandardClaims{
-		Audience:  "shinsson",
+		Audience:  "Jarnpher553",
 		ExpiresAt: t.Add(time.Hour * 24 * 3).Unix(),
 		Id:        uuid.NewV4().String(),
 		IssuedAt:  t.Unix(),
-		Issuer:    "shinsson",
+		Issuer:    "Jarnpher553",
 		Subject:   "auth",
 	}
 

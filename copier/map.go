@@ -15,12 +15,27 @@ func Copy(from, to interface{}) error {
 	tt := reflect.TypeOf(to).Elem()
 	vv := reflect.ValueOf(to).Elem()
 
-	for i := 0; i < tt.NumField(); i++ {
-		tField := tt.Field(i).Type
-		vField := vv.Field(i)
-		if tField.Kind() == reflect.Ptr {
-			if vField.Elem().Interface() == reflect.Zero(tField.Elem()).Interface() {
-				vField.Set(reflect.Zero(tField))
+	if tt.Kind() == reflect.Slice {
+		for i := 0; i < vv.Len(); i++ {
+			vi := vv.Index(i)
+			for j := 0; j < vi.NumField(); j++ {
+				tField := vi.Field(j).Type()
+				vField := vi.Field(j)
+				if tField.Kind() == reflect.Ptr {
+					if vField.Elem().Interface() == reflect.Zero(tField.Elem()).Interface() {
+						vField.Set(reflect.Zero(tField))
+					}
+				}
+			}
+		}
+	} else {
+		for i := 0; i < tt.NumField(); i++ {
+			tField := tt.Field(i).Type
+			vField := vv.Field(i)
+			if tField.Kind() == reflect.Ptr {
+				if vField.Elem().Interface() == reflect.Zero(tField.Elem()).Interface() {
+					vField.Set(reflect.Zero(tField))
+				}
 			}
 		}
 	}
@@ -28,6 +43,7 @@ func Copy(from, to interface{}) error {
 	return nil
 }
 
+// Deprecated: Use Copy instead.
 func MapTo(from, to interface{}) error {
 	fromType := reflect.TypeOf(from)
 	fromValue := reflect.ValueOf(from)

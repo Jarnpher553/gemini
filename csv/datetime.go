@@ -5,21 +5,21 @@ import (
 	"time"
 )
 
-type DateTime time.Time
+type Date time.Time
 
-func (date *DateTime) MarshalCSV() (string, error) {
-	if *date == DateTime(time.Time{}) {
+func (date *Date) MarshalCSV() (string, error) {
+	if *date == Date(time.Time{}) {
 		return "", nil
 	}
 
 	return time.Time(*date).Format("2006/01/02"), nil
 }
 
-func (date *DateTime) String() string {
+func (date *Date) String() string {
 	return time.Time(*date).Format("2006/01/02")
 }
 
-func (date *DateTime) UnmarshalCSV(csv string) (err error) {
+func (date *Date) UnmarshalCSV(csv string) (err error) {
 	if csv != "" {
 		csvSlice := strings.Split(csv, "/")
 
@@ -33,7 +33,7 @@ func (date *DateTime) UnmarshalCSV(csv string) (err error) {
 		csv = strings.Join(csvSlice, "/")
 
 		t, err := time.ParseInLocation("2006/01/02", csv, time.Local)
-		*date = DateTime(t)
+		*date = Date(t)
 		return err
 	}
 

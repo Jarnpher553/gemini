@@ -1,9 +1,9 @@
 package httpclient
 
 import (
+	"github.com/Jarnpher553/micro-core/tracing"
 	"github.com/openzipkin/zipkin-go/model"
 	"net/http"
-	"github.com/Jarnpher553/micro-core/tracing"
 )
 
 // Transport http客户端自定义传输类
@@ -16,12 +16,12 @@ func (tran *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	ctx := r.Context()
 
-	var sc model.SpanContext
 	if span := tracing.SpanFromContext(ctx); span != nil {
+		var sc model.SpanContext
 		sc = span.Context()
-	}
 
-	InjectHttp(r)(sc)
+		InjectHttp(r)(sc)
+	}
 
 	return tran.RoundTripper.RoundTrip(r)
 }

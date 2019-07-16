@@ -8,7 +8,7 @@ require (
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
-	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df // indirect
+	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-redis/redis v6.15.2+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190617172706-c2ed51a5cbc5
 	github.com/golang/snappy v0.0.1 // indirect

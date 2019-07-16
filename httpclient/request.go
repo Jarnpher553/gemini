@@ -53,10 +53,12 @@ func New(options ...Option) *ReqClient {
 func (c *ReqClient) RGet(url string, query map[string]string, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	sp := c.getSpan(ctx, url, "GET")
-	defer sp.Finish()
+	if c.Tracer != nil {
+		sp := c.getSpan(ctx, url, "GET")
+		defer sp.Finish()
 
-	ctx = tracing.NewContext(request.Context(), sp)
+		ctx = tracing.NewContext(request.Context(), sp)
+	}
 
 	_, err := request.SetContext(ctx).
 		SetQueryParams(query).
@@ -74,10 +76,12 @@ func (c *ReqClient) RGet(url string, query map[string]string, ctx context.Contex
 func (c *ReqClient) RPost(url string, body interface{}, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	sp := c.getSpan(ctx, url, "POST")
-	defer sp.Finish()
+	if c.Tracer != nil {
+		sp := c.getSpan(ctx, url, "POST")
+		defer sp.Finish()
 
-	ctx = tracing.NewContext(request.Context(), sp)
+		ctx = tracing.NewContext(request.Context(), sp)
+	}
 
 	_, err := request.SetContext(ctx).
 		SetBody(body).
@@ -95,10 +99,12 @@ func (c *ReqClient) RPost(url string, body interface{}, ctx context.Context, v i
 func (c *ReqClient) RPut(url string, body interface{}, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	sp := c.getSpan(ctx, url, "PUT")
-	defer sp.Finish()
+	if c.Tracer != nil {
+		sp := c.getSpan(ctx, url, "PUT")
+		defer sp.Finish()
 
-	ctx = tracing.NewContext(request.Context(), sp)
+		ctx = tracing.NewContext(request.Context(), sp)
+	}
 
 	_, err := request.SetContext(ctx).
 		SetBody(body).
@@ -116,10 +122,12 @@ func (c *ReqClient) RPut(url string, body interface{}, ctx context.Context, v in
 func (c *ReqClient) RDelete(url string, query map[string]string, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	sp := c.getSpan(ctx, url, "DELETE")
-	defer sp.Finish()
+	if c.Tracer != nil {
+		sp := c.getSpan(ctx, url, "DELETE")
+		defer sp.Finish()
 
-	ctx = tracing.NewContext(request.Context(), sp)
+		ctx = tracing.NewContext(request.Context(), sp)
+	}
 
 	request = request.SetContext(ctx).SetResult(v)
 	if query != nil {
