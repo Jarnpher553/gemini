@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/Jarnpher553/micro-core/util/addr"
 	"net/http"
 	"os"
 	"os/signal"
@@ -96,7 +97,8 @@ func (s *DefaultServer) Run() {
 	}
 
 	go func() {
-		entry.Infof("server listening on %s...", ":"+strings.Split(s.Server.Addr, ":")[1])
+		entry.Infof("server listening on %s...", s.Server.Addr)
+
 		if err := s.ListenAndServe(); err != nil {
 			entry.Fatalln(err)
 		}
@@ -124,7 +126,9 @@ func (s *DefaultServer) register() []error {
 	for _, node := range s.Services {
 		wg.Add(1)
 
-		node.Address = strings.Split(s.Server.Addr, ":")[0]
+		address, _ := addr.Extract(s.Server.Addr)
+
+		node.Address = address
 		node.Port = strings.Split(s.Server.Addr, ":")[1]
 
 		go s.Register(node, &wg, errChan)
