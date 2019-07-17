@@ -2,7 +2,6 @@ package repo
 
 import (
 	"fmt"
-	"github.com/Jarnpher553/micro-core/config"
 	"github.com/Jarnpher553/micro-core/log"
 	"github.com/jinzhu/gorm"
 	"reflect"
@@ -106,8 +105,8 @@ func New(options ...Option) *Repository {
 	return repo
 }
 
-// NewFromConfigFile 通过配置文件实例化repo
-func NewFromConfigFile(file *config.Config, fn *FieldName) *Repository {
+// Deprecated: NewFromConfigFile 通过配置文件实例化repo
+/*func NewFromConfigFile(file *config.Config, fn *FieldName) *Repository {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", file.GetString(fn.Username), file.GetString(fn.Password), file.GetString(fn.Host), file.GetString(fn.Port), file.GetString(fn.DbName)))
 
 	if err != nil {
@@ -117,7 +116,7 @@ func NewFromConfigFile(file *config.Config, fn *FieldName) *Repository {
 	return &Repository{
 		DB: db,
 	}
-}
+}*/
 
 // ReadAll 查询单条
 func (repo *Repository) ReadAll(out interface{}, where ...interface{}) (e error) {

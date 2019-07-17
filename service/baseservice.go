@@ -277,7 +277,7 @@ func (s *BaseService) Options(handler *Handler) HandlerFunc {
 	}
 }
 
-func (s *BaseService) DoGet(serviceName string, paramOrAction string, query map[string]string, ctx context.Context, v interface{}) error {
+func (s *BaseService) CallGet(serviceName string, paramOrAction string, query map[string]string, ctx context.Context, v interface{}) error {
 	srv, err := s.reg.GetService(serviceName)
 	if err != nil {
 		return err
@@ -292,7 +292,7 @@ func (s *BaseService) DoGet(serviceName string, paramOrAction string, query map[
 	return s.Client().RGet(url, query, ctx, v)
 }
 
-func (s *BaseService) DoPost(serviceName string, action string, body interface{}, ctx context.Context, v interface{}) error {
+func (s *BaseService) CallPost(serviceName string, action string, body interface{}, ctx context.Context, v interface{}) error {
 	srv, err := s.reg.GetService(serviceName)
 	if err != nil {
 		return err
@@ -308,7 +308,7 @@ func (s *BaseService) DoPost(serviceName string, action string, body interface{}
 	return s.Client().RPost(url, body, ctx, v)
 }
 
-func (s *BaseService) DoPut(serviceName string, param int, body interface{}, ctx context.Context, v interface{}) error {
+func (s *BaseService) CallPut(serviceName string, param int, body interface{}, ctx context.Context, v interface{}) error {
 	if param == 0 {
 		return errors.New("put request need param")
 	}
@@ -322,7 +322,7 @@ func (s *BaseService) DoPut(serviceName string, param int, body interface{}, ctx
 	return s.Client().RPut(url, body, ctx, v)
 }
 
-func (s *BaseService) DoDelete(serviceName string, param int, query map[string]string, ctx context.Context, v interface{}) error {
+func (s *BaseService) CallDelete(serviceName string, param int, query map[string]string, ctx context.Context, v interface{}) error {
 	if query != nil && param != 0 {
 		return errors.New("delete request not need param if query isn't empty")
 	} else if query == nil && param == 0 {

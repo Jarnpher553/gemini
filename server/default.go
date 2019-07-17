@@ -79,9 +79,11 @@ func Default(options ...Option) IBaseServer {
 		op(server)
 	}
 
-	r := server.Handler.(*router.Router)
-	r.Engine = gin.Default()
-	r.RootGroup(server.name)
+	r, ok := server.Handler.(*router.Router)
+	if ok {
+		r.Engine = gin.Default()
+		r.RootGroup(server.name)
+	}
 
 	return server
 }
@@ -94,7 +96,7 @@ func (s *DefaultServer) Run() {
 	}
 
 	go func() {
-		entry.Infof("server listening on %s...", s.Addr)
+		entry.Infof("server listening on %s...", ":"+strings.Split(s.Server.Addr, ":")[1])
 		if err := s.ListenAndServe(); err != nil {
 			entry.Fatalln(err)
 		}
