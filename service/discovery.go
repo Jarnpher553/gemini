@@ -6,7 +6,6 @@ import (
 	consul "github.com/hashicorp/consul/api"
 	"math/rand"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 )
@@ -14,7 +13,7 @@ import (
 type Registry struct {
 	sync.Mutex
 	*consul.Client
-	Services []*NodeInfo
+	Services  []*NodeInfo
 }
 
 func NewRegistry(addr string) *Registry {
@@ -51,7 +50,7 @@ func (r *Registry) inject(service IBaseService) {
 func (r *Registry) Register(node *NodeInfo, group *sync.WaitGroup, errChan chan error) {
 	defer group.Done()
 
-	services, _, err := r.Health().Checks(strings.Replace(node.ServerName, ".", "", -1)+node.Name, nil)
+	services, _, err := r.Health().Checks(node.ServerName+"."+node.Name, nil)
 	if err == nil {
 		for _, v := range services {
 			if v.ServiceID == node.Id {
@@ -69,7 +68,7 @@ func (r *Registry) Register(node *NodeInfo, group *sync.WaitGroup, errChan chan 
 	port, _ := strconv.Atoi(node.Port)
 	asr := &consul.AgentServiceRegistration{
 		ID:      node.Id,
-		Name:    strings.Replace(node.ServerName, ".", "", -1) + node.Name,
+		Name:    fmt.Sprintf("%s.%s", node.ServerName, node.Name),
 		Port:    port,
 		Address: node.Address,
 		Check:   check,
