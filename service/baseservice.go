@@ -4,6 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/Jarnpher553/micro-core/breaker"
 	"github.com/Jarnpher553/micro-core/httpclient"
 	"github.com/Jarnpher553/micro-core/limit"
@@ -12,11 +17,7 @@ import (
 	"github.com/Jarnpher553/micro-core/redis"
 	"github.com/Jarnpher553/micro-core/repo"
 	"github.com/Jarnpher553/micro-core/tracing"
-	"github.com/satori/go.uuid"
-	"net/http"
-	"reflect"
-	"strings"
-	"time"
+	uuid "github.com/satori/go.uuid"
 )
 
 type IBaseService interface {
@@ -277,7 +278,65 @@ func (s *BaseService) Options(handler *Handler) HandlerFunc {
 	}
 }
 
-func (s *BaseService) CallGet(serviceName string, paramOrAction string, query map[string]string, ctx context.Context, v interface{}) error {
+// Call 调用其它服务方法
+// params:
+// 	@method: get请求: get get:id get@action
+// 			post请求: post post@action
+// 			put请求: put:id
+// 			delete请求: delete delete:id
+// 	@args: 调用方法的入参
+// 	@replay: 调用发放的返回
+func (s *BaseService) Call(ctx context.Context, service string, method string, args interface{}, replay interface{}) error {
+	if strings.Index(method, "post") != -1 {
+		action := strings.TrimPrefix(method, "post")
+
+		if strings.Index(action, "@") != -1 {
+			return s.callPost(service, strings.Split(action, "@")[1], args, ctx, replay)
+		} else {
+			return s.callPost(service, "", args, ctx, replay)
+		}
+
+	} else if strings.Index(method, "get") != -1 {
+		action := strings.TrimPrefix(method, "get")
+
+		if strings.Index(action, ":") != -1 {
+			return s.callGet(service, strings.Split(action, ":")[1], nil, ctx, replay)
+		} else if strings.Index(action, "@") != -1 {
+			var query map[string]string
+			if args != nil {
+				query = args.(map[string]string)
+			}
+
+			return s.callGet(service, strings.Split(action, "@")[1], query, ctx, replay)
+		} else {
+			var query map[string]string
+			if args != nil {
+				query = args.(map[string]string)
+			}
+
+			return s.callGet(service, "", query, ctx, replay)
+		}
+	} else if strings.Index(method, "put") != -1 {
+		action := strings.TrimPrefix(method, "put")
+
+		return s.callPut(service, strings.Split(action, ":")[1], nil, ctx, replay)
+	} else if strings.Index(method, "delete") != -1 {
+		action := strings.TrimPrefix(method, "put")
+
+		if strings.Index(action, ":") != -1 {
+			return s.callGet(service, strings.Split(action, ":")[1], nil, ctx, replay)
+		} else {
+			var query map[string]string
+			if args != nil {
+				query = args.(map[string]string)
+			}
+			return s.callDelete(service, "", query, ctx, replay)
+		}
+	}
+	return nil
+}
+
+func (s *BaseService) callGet(serviceName string, paramOrAction string, query map[string]string, ctx context.Context, v interface{}) error {
 	srv, err := s.reg.GetService(serviceName)
 	if err != nil {
 		return err
@@ -292,7 +351,7 @@ func (s *BaseService) CallGet(serviceName string, paramOrAction string, query ma
 	return s.Client().RGet(url, query, ctx, v)
 }
 
-func (s *BaseService) CallPost(serviceName string, action string, body interface{}, ctx context.Context, v interface{}) error {
+func (s *BaseService) callPost(serviceName string, action string, body interface{}, ctx context.Context, v interface{}) error {
 	srv, err := s.reg.GetService(serviceName)
 	if err != nil {
 		return err
@@ -308,8 +367,8 @@ func (s *BaseService) CallPost(serviceName string, action string, body interface
 	return s.Client().RPost(url, body, ctx, v)
 }
 
-func (s *BaseService) CallPut(serviceName string, param int, body interface{}, ctx context.Context, v interface{}) error {
-	if param == 0 {
+func (s *BaseService) callPut(serviceName string, param string, body interface{}, ctx context.Context, v interface{}) error {
+	if param == "" {
 		return errors.New("put request need param")
 	}
 
@@ -318,14 +377,14 @@ func (s *BaseService) CallPut(serviceName string, param int, body interface{}, c
 		return err
 	}
 	path := strings.Join(strings.Split(srv.Name, "."), "/")
-	url := fmt.Sprintf("http://%s:%s/%s/%d", srv.Address, srv.Port, path, param)
+	url := fmt.Sprintf("http://%s:%s/%s/%s", srv.Address, srv.Port, path, param)
 	return s.Client().RPut(url, body, ctx, v)
 }
 
-func (s *BaseService) CallDelete(serviceName string, param int, query map[string]string, ctx context.Context, v interface{}) error {
-	if query != nil && param != 0 {
+func (s *BaseService) callDelete(serviceName string, param string, query map[string]string, ctx context.Context, v interface{}) error {
+	if query != nil && param != "" {
 		return errors.New("delete request not need param if query isn't empty")
-	} else if query == nil && param == 0 {
+	} else if query == nil && param == "" {
 		return errors.New("delete request need one of param and query")
 	}
 
@@ -336,10 +395,10 @@ func (s *BaseService) CallDelete(serviceName string, param int, query map[string
 
 	var url string
 	path := strings.Join(strings.Split(srv.Name, "."), "/")
-	if param == 0 {
+	if param == "" {
 		url = fmt.Sprintf("http://%s:%s/%s", srv.Address, srv.Port, path)
 	} else {
-		url = fmt.Sprintf("http://%s:%s/%s/%d", srv.Address, srv.Port, path, param)
+		url = fmt.Sprintf("http://%s:%s/%s/%s", srv.Address, srv.Port, path, param)
 	}
 	return s.Client().RDelete(url, query, ctx, v)
 }
