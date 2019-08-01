@@ -1,11 +1,11 @@
 package validator
 
 import (
-	"reflect"
-	"sync"
-
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v9"
+	"reflect"
+	"regexp"
+	"sync"
 )
 
 type defaultValidator struct {
@@ -59,6 +59,9 @@ var v *validator.Validate
 func init() {
 	binding.Validator = new(defaultValidator)
 	v = binding.Validator.Engine().(*validator.Validate)
+	_ = v.RegisterValidation("jsonDateRequired", func(sl validator.FieldLevel) bool {
+		return sl.Field().IsValid()
+	})
 }
 
 func Register(key string, fn Func) {
@@ -76,3 +79,14 @@ type FieldLevel interface {
 }
 
 type Func func(v *Validate, fl FieldLevel) bool
+
+func jsonDateRequired(
+	v *validator.Validate, level validator.FieldLevel,
+) bool {
+	if code, ok := level.Field().Interface().(string); ok {
+		reg := regexp.MustCompile(`^20\d{2}(0[1-9]|1[0-2])[0-9A-Z]{4}$`)
+		ret := reg.MatchString(code)
+		return ret
+	}
+	return true
+}
