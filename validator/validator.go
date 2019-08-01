@@ -1,11 +1,13 @@
 package validator
 
 import (
+	"github.com/Jarnpher553/micro-core/json"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v9"
 	"reflect"
 	"regexp"
 	"sync"
+	"time"
 )
 
 type defaultValidator struct {
@@ -59,9 +61,17 @@ var v *validator.Validate
 func init() {
 	binding.Validator = new(defaultValidator)
 	v = binding.Validator.Engine().(*validator.Validate)
-	_ = v.RegisterValidation("jsonDateRequired", func(sl validator.FieldLevel) bool {
-		return sl.Field().IsValid()
-	})
+	v.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
+
+		if valuer, ok := field.Interface().(json.Date); ok {
+
+			if valuer != json.Date(time.Time{}) {
+				return valuer
+			}
+		}
+
+		return nil
+	}, json.Date{})
 }
 
 func Register(key string, fn Func) {
