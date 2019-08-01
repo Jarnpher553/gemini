@@ -71,4 +71,8 @@ type Validate struct {
 	*validator.Validate
 }
 
-type Func func(v *Validate, fl validator.FieldLevel) bool
+type FieldLevel interface {
+	validator.FieldLevel
+}
+
+type Func func(v *Validate, fl FieldLevel) bool
