@@ -25,7 +25,3 @@ func (date *Date) UnmarshalJSON(data []byte) (err error) {
 	*date = Date(t)
 	return err
 }
-
-func (t *Date) IsZero() bool {
-	return *t == Date(time.Time{})
-}
