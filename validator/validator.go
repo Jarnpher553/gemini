@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v9"
 	"reflect"
-	"regexp"
 	"sync"
 	"time"
 )
@@ -42,6 +41,17 @@ func (v *defaultValidator) lazyinit() {
 		v.validate.SetTagName("binding")
 
 		// add any custom validations etc. here
+		v.validate.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
+
+			if valuer, ok := field.Interface().(json.Date); ok {
+
+				if valuer != json.Date(time.Time{}) {
+					return valuer
+				}
+			}
+
+			return nil
+		}, json.Date{})
 	})
 }
 
@@ -61,17 +71,6 @@ var v *validator.Validate
 func init() {
 	binding.Validator = new(defaultValidator)
 	v = binding.Validator.Engine().(*validator.Validate)
-	v.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
-
-		if valuer, ok := field.Interface().(json.Date); ok {
-
-			if valuer != json.Date(time.Time{}) {
-				return valuer
-			}
-		}
-
-		return nil
-	}, json.Date{})
 }
 
 func Register(key string, fn Func) {
@@ -89,14 +88,3 @@ type FieldLevel interface {
 }
 
 type Func func(v *Validate, fl FieldLevel) bool
-
-func jsonDateRequired(
-	v *validator.Validate, level validator.FieldLevel,
-) bool {
-	if code, ok := level.Field().Interface().(string); ok {
-		reg := regexp.MustCompile(`^20\d{2}(0[1-9]|1[0-2])[0-9A-Z]{4}$`)
-		ret := reg.MatchString(code)
-		return ret
-	}
-	return true
-}
