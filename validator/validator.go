@@ -46,7 +46,7 @@ func (v *defaultValidator) lazyinit() {
 			if valuer, ok := field.Interface().(json.Date); ok {
 
 				if valuer != json.Date(time.Time{}) {
-					return valuer
+					return time.Time(valuer)
 				}
 			}
 
