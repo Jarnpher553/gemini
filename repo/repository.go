@@ -211,11 +211,20 @@ func (repo *Repository) ModifyColumn(val interface{}, attr string, upValue inter
 			e = fmt.Errorf("%v", err)
 		}
 	}()
+	kind := reflect.TypeOf(val).Kind()
 
 	if where != nil {
-		return repo.DB.Model(val).Where(where[0], where[1:]...).Update(attr, upValue).Error
+		if kind == reflect.String {
+			return repo.DB.Table(val.(string)).Where(where[0], where[1:]...).Update(attr, upValue).Error
+		} else {
+			return repo.DB.Model(val).Where(where[0], where[1:]...).Update(attr, upValue).Error
+		}
 	}
-	return repo.DB.Model(val).Update(attr, upValue).Error
+	if kind == reflect.String {
+		return repo.DB.Table(val.(string)).Update(attr, upValue).Error
+	} else {
+		return repo.DB.Model(val).Update(attr, upValue).Error
+	}
 }
 
 // 更改多个字段
@@ -225,11 +234,20 @@ func (repo *Repository) ModifyColumns(val interface{}, columns interface{}, wher
 			e = fmt.Errorf("%v", err)
 		}
 	}()
+	kind := reflect.TypeOf(val).Kind()
 
 	if where != nil {
-		return repo.DB.Model(val).Where(where[0], where[1:]...).Updates(columns).Error
+		if kind == reflect.String {
+			return repo.DB.Table(val.(string)).Where(where[0], where[1:]...).Updates(columns).Error
+		} else {
+			return repo.DB.Model(val).Where(where[0], where[1:]...).Updates(columns).Error
+		}
 	}
-	return repo.DB.Model(val).Updates(columns).Error
+	if kind == reflect.String {
+		return repo.DB.Table(val.(string)).Updates(columns).Error
+	} else {
+		return repo.DB.Model(val).Updates(columns).Error
+	}
 }
 
 // ModifyFunc 使用函数更新
