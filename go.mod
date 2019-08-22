@@ -34,6 +34,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.1.6
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
 	github.com/roylee0704/gron v0.0.0-20160621042432-e78485adab46
+	github.com/rs/xid v1.2.1 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/sony/gobreaker v0.4.1
