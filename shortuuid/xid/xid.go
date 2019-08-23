@@ -1,4 +1,4 @@
-package shortuuid
+package xid
 
 import "github.com/rs/xid"
 
