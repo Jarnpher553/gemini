@@ -28,12 +28,12 @@ func New(writer IWriter) *Metric {
 
 	go writer.Write(metric)
 
-	metric.Start()
+	//metric.Start()
 
 	return metric
 }
 
-// Start 开始答应
+// Start 开始打印
 func (metric *Metric) Start() {
 	metric.reg.GetOrRegister("reqCount", metric.ReqCount)
 	metric.reg.GetOrRegister("reqDuration", metric.ReqDuration)
