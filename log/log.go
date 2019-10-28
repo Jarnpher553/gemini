@@ -44,7 +44,7 @@ func init() {
 	Logger.SetOutput(os.Stdout)
 
 	//配置钩子，根据日志时间和level打印到对应的文件
-	Logger.AddHook(NewDailyHook())
+	Logger.AddHook(NewHourHook())
 }
 
 // SetOutput 设置日志输出位置
