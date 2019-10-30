@@ -64,7 +64,7 @@ func (exp *Expire) Assign(name string, handle Handle) *Expire {
 
 //执行任务
 func (exp *Expire) Run(stop context.Context) {
-	pubSub := exp.options.redis.Subscribe("__keyevent@*__:expired")
+	pubSub := exp.options.redis.PSubscribe("__keyevent@*__:expired")
 	ch := pubSub.Channel()
 
 	go func() {
