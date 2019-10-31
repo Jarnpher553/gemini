@@ -12,7 +12,7 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
-	github.com/go-redis/redis v6.15.2+incompatible
+	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190617172706-c2ed51a5cbc5
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hashicorp/consul v1.4.2
