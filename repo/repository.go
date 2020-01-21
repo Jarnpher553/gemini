@@ -205,7 +205,7 @@ func (repo *Repository) Modify(val interface{}) (e error) {
 }
 
 // 更改单个字段
-func (repo *Repository) ModifyColumn(val interface{}, attr string, upValue interface{}, where ...interface{}) (e error) {
+func (repo *Repository) ModifyColumn(val interface{}, attr string, upValue interface{}, where ...interface{}) (affects int64, e error) {
 	defer func() {
 		if err := recover(); err != nil {
 			e = fmt.Errorf("%v", err)
@@ -215,20 +215,24 @@ func (repo *Repository) ModifyColumn(val interface{}, attr string, upValue inter
 
 	if where != nil {
 		if kind == reflect.String {
-			return repo.DB.Table(val.(string)).Where(where[0], where[1:]...).Update(attr, upValue).Error
+			db := repo.DB.Table(val.(string)).Where(where[0], where[1:]...).Update(attr, upValue)
+			return db.RowsAffected, db.Error
 		} else {
-			return repo.DB.Model(val).Where(where[0], where[1:]...).Update(attr, upValue).Error
+			db := repo.DB.Model(val).Where(where[0], where[1:]...).Update(attr, upValue)
+			return db.RowsAffected, db.Error
 		}
 	}
 	if kind == reflect.String {
-		return repo.DB.Table(val.(string)).Update(attr, upValue).Error
+		db := repo.DB.Table(val.(string)).Update(attr, upValue)
+		return db.RowsAffected, db.Error
 	} else {
-		return repo.DB.Model(val).Update(attr, upValue).Error
+		db := repo.DB.Model(val).Update(attr, upValue)
+		return db.RowsAffected, db.Error
 	}
 }
 
 // 更改多个字段
-func (repo *Repository) ModifyColumns(val interface{}, columns interface{}, where ...interface{}) (e error) {
+func (repo *Repository) ModifyColumns(val interface{}, columns interface{}, where ...interface{}) (affects int64, e error) {
 	defer func() {
 		if err := recover(); err != nil {
 			e = fmt.Errorf("%v", err)
@@ -238,15 +242,19 @@ func (repo *Repository) ModifyColumns(val interface{}, columns interface{}, wher
 
 	if where != nil {
 		if kind == reflect.String {
-			return repo.DB.Table(val.(string)).Where(where[0], where[1:]...).Updates(columns).Error
+			db := repo.DB.Table(val.(string)).Where(where[0], where[1:]...).Updates(columns)
+			return db.RowsAffected, db.Error
 		} else {
-			return repo.DB.Model(val).Where(where[0], where[1:]...).Updates(columns).Error
+			db := repo.DB.Model(val).Where(where[0], where[1:]...).Updates(columns)
+			return db.RowsAffected, db.Error
 		}
 	}
 	if kind == reflect.String {
-		return repo.DB.Table(val.(string)).Updates(columns).Error
+		db := repo.DB.Table(val.(string)).Updates(columns)
+		return db.RowsAffected, db.Error
 	} else {
-		return repo.DB.Model(val).Updates(columns).Error
+		db := repo.DB.Model(val).Updates(columns)
+		return db.RowsAffected, db.Error
 	}
 }
 

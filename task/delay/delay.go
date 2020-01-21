@@ -48,10 +48,10 @@ func Run() {
 			for {
 				select {
 				case <-delay.stop.Done():
-					log.Logger.Mark("TASK[DELAY]").Infoln(k, "stopped")
+					log.Logger.Mark("TASK DELAY").Infoln(k, "stopped")
 					break For
 				default:
-					<-time.After(50 * time.Millisecond)
+					<-time.After(10 * time.Millisecond)
 					now := time.Now().UnixNano() / 1e6
 					zset := delay.options.Redis.ZRangeByScoreWithScores(k, redis.ZRangeBy{"-inf", "+inf", 0, 1}).Val()
 					if len(zset) == 0 {
@@ -59,7 +59,7 @@ func Run() {
 					}
 					score := zset[0].Score
 					if float64(now) >= score {
-						delay.handles[k](zset[0].Member, delay.options)
+						go delay.handles[k](zset[0].Member, delay.options)
 						delay.options.Redis.ZRem(k, zset[0].Member)
 					}
 				}

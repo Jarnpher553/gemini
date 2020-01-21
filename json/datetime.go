@@ -21,6 +21,9 @@ func (date *Date) String() string {
 
 func (date *Date) UnmarshalJSON(data []byte) (err error) {
 	d := string(data[1 : len(data)-1])
+	if d == "" {
+		return nil
+	}
 	t, err := time.ParseInLocation("2006-01-02", string(d), time.Local)
 	*date = Date(t)
 	return err
@@ -43,6 +46,9 @@ func (date *DateTime) String() string {
 
 func (date *DateTime) UnmarshalJSON(data []byte) (err error) {
 	d := string(data[1 : len(data)-1])
+	if d == "" {
+		return nil
+	}
 	t, err := time.ParseInLocation("2006-01-02 15:04:05", string(d), time.Local)
 	*date = DateTime(t)
 	return err

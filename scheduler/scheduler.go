@@ -4,7 +4,7 @@ import (
 	"github.com/Jarnpher553/micro-core/mongo"
 	"github.com/Jarnpher553/micro-core/redis"
 	"github.com/Jarnpher553/micro-core/repo"
-	"github.com/roylee0704/gron"
+	"github.com/Jarnpher553/gron"
 	"time"
 )
 

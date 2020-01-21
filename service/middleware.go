@@ -131,6 +131,22 @@ func DelayLimiterMiddleware(limiter *limit.Limiter) Middleware {
 	}
 }
 
+func ReserveLimiterMiddleware(limiter *limit.Limiter) Middleware {
+	return func(srv IBaseService) HandlerFunc {
+		return func(ctx *Ctx) {
+			r := limiter.Reserve()
+			if !r.OK() {
+				log.Logger.Mark("Limiter").Errorln(erro.ErrMsg[erro.ErrReserveLimiter], "Did you remember to set lim.burst to be > 0 ?")
+
+				ctx.Response(erro.ErrReserveLimiter, nil)
+				ctx.Abort()
+				return
+			}
+			<-time.After(r.Delay())
+		}
+	}
+}
+
 func AuthMiddleware() Middleware {
 	return func(baseService IBaseService) HandlerFunc {
 		return func(ctx *Ctx) {

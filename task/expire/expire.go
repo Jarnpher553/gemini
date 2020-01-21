@@ -59,10 +59,13 @@ func Run() {
 				}
 			case <-exp.stop.Done():
 				for k := range exp.handles {
-					log.Logger.Mark("TASK[EXPIRE]").Infoln(k, "stopped")
+					log.Logger.Mark("TASK EXPIRE").Infoln(k, "stopped")
 				}
 				break For
+			default:
+
 			}
+
 		}
 	}()
 }

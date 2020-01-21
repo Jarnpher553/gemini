@@ -11,12 +11,13 @@ func (e *Err) Error() string {
 
 // 错误码
 const (
-	ErrSuccess      = 200
-	ErrDefault      = 500
-	ErrBreaker      = 3000
-	ErrRateLimiter  = 3001
-	ErrDelayLimiter = 3002
-	ErrAuthor       = 3003
+	ErrSuccess        = 200
+	ErrDefault        = 500
+	ErrBreaker        = 3000
+	ErrRateLimiter    = 3001
+	ErrDelayLimiter   = 3002
+	ErrReserveLimiter = 3004
+	ErrAuthor         = 4003
 
 	//add custom code below
 	ErrFileMime   = 501

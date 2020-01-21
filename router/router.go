@@ -127,7 +127,7 @@ func (r *Router) Register(srv service.IBaseService) {
 	group := r.Group(fmt.Sprintf("%s", node.Name))
 
 	//服务注册中间件
-	group.Use(service.Wrapper(service.RateLimiterMiddleware(srv.Option().Limiter)(srv)))
+	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Option().Limiter)(srv)))
 	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Option().Cb)(srv)))
 	group.Use(service.Wrapper(service.MetricMiddleware(srv.Option().Metric)(srv)))
 	group.Use(service.Wrapper(service.ExtractHttpMiddleware()(srv)))

@@ -18,6 +18,8 @@ import (
 	"github.com/Jarnpher553/micro-core/repo"
 	"github.com/Jarnpher553/micro-core/tracing"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/time/rate"
+	"runtime"
 )
 
 type IBaseService interface {
@@ -142,8 +144,7 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 	}
 
 	if bs.option.Limiter == nil {
-		bs.option.Limiter = limit.New(time.Second*1, 100)
-
+		bs.option.Limiter = limit.New(rate.Limit(200*runtime.NumCPU()), 200*runtime.NumCPU())
 	}
 
 	if bs.option.Metric == nil {

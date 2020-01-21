@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	"github.com/roylee0704/gron/xtime"
+	"github.com/Jarnpher553/gron/xtime"
 	"time"
 )
 

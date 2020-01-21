@@ -2,8 +2,8 @@ package dto
 
 // Response响应类
 type Response struct {
-	ErrCode   int         `json:"errCode"`
-	ErrMsg    string      `json:"errMsg"`
+	ErrCode   int         `json:"code"`
+	ErrMsg    string      `json:"msg"`
 	Timestamp int64       `json:"timestamp"`
 	Data      interface{} `json:"data"`
 }

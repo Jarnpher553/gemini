@@ -9,6 +9,7 @@ import (
 
 	//prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	"os"
+	"regexp"
 )
 
 // LogrusLogger 日志记录类
@@ -64,8 +65,25 @@ func (l *LogrusLogger) Caller(skip int) *LogrusEntry {
 
 	callerSplit := strings.Split(caller, ".")
 
-	callerStruct := strings.Trim(callerSplit[len(callerSplit)-3], "()*")
-	callerFunc := callerSplit[len(callerSplit)-2]
+	callers := make(map[string]interface{})
+	start := 96
 
-	return &LogrusEntry{Entry: l.Logger.WithField("a", "Service").WithField("b", callerStruct).WithField("c", callerFunc)}
+	reg1 := regexp.MustCompile(`^func[0-9]$`)
+	reg2 := regexp.MustCompile(`^[0-9]$`)
+	for i := range callerSplit {
+		if reg1.MatchString(callerSplit[i]) || reg2.MatchString(callerSplit[i]) {
+			continue
+		}
+		start++
+		key := string(start)
+		if strings.Contains(callerSplit[i], "/") {
+			callers[key] = strings.Title(strings.Split(callerSplit[i], "/")[1])
+		} else if strings.Contains(callerSplit[i], "*") {
+			callers[key] = strings.Trim(callerSplit[i], "()*")
+		} else {
+			callers[key] = callerSplit[i]
+		}
+	}
+
+	return &LogrusEntry{Entry: l.Logger.WithFields(callers)}
 }

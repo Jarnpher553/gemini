@@ -2,6 +2,7 @@ package httpclient
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/Jarnpher553/micro-core/tracing"
 	"github.com/openzipkin/zipkin-go"
 	"github.com/openzipkin/zipkin-go/model"
@@ -49,6 +50,10 @@ func New(options ...Option) *ReqClient {
 	return rc
 }
 
+func R() *resty.Request {
+	return resty.R()
+}
+
 // RGet get请求
 func (c *ReqClient) RGet(url string, query map[string]string, ctx context.Context, v interface{}) error {
 	request := resty.R()
@@ -60,10 +65,14 @@ func (c *ReqClient) RGet(url string, query map[string]string, ctx context.Contex
 		ctx = tracing.NewContext(request.Context(), sp)
 	}
 
-	_, err := request.SetContext(ctx).
+	resp, err := request.SetContext(ctx).
 		SetQueryParams(query).
 		SetResult(v).
 		Get(url)
+
+	if resp.Header()["Content-Type"][0] == "text/plain" {
+		_ = json.Unmarshal(resp.Body(), v)
+	}
 
 	if err != nil {
 		return err
