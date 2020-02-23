@@ -378,7 +378,7 @@ func Group(query string) Expression {
 }
 
 // Query 查询列表（可分页）
-func (repo *Repository) Query(out interface{}, exps ...Expression) (c int, e error) {
+func (repo *Repository) Query(out interface{}, count bool, exps ...Expression) (c int, e error) {
 	defer func() {
 		if err := recover(); err != nil {
 			e = fmt.Errorf("%v", err)
@@ -391,14 +391,22 @@ func (repo *Repository) Query(out interface{}, exps ...Expression) (c int, e err
 		db = exp(db)
 	}
 
-	if err := db.
-		Scan(out).
-		Offset(-1).
-		Limit(-1).
-		Count(&c).Error; err != nil {
+	db = db.Scan(out)
+	if err := db.Error; err != nil {
 		e = err
 		return
 	}
+
+	if count {
+		if err := db.
+			Offset(-1).
+			Limit(-1).
+			Count(&c).Error; err != nil {
+			e = err
+			return
+		}
+	}
+
 	return
 }
 

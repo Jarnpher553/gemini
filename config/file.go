@@ -14,7 +14,7 @@ func init() {
 	conf.SetConfigName("config")
 	conf.SetConfigType("yaml")
 
-	conf.generate()
+	conf.Generate()
 }
 
 // File 构造函数
@@ -27,11 +27,11 @@ func File(options ...Option) {
 		options[i](conf.Viper)
 	}
 
-	conf.generate()
+	conf.Generate()
 }
 
 // generate 配置生成
-func (c *Config) generate() {
+func (c *Config) Generate() {
 	err := c.ReadInConfig()
 	if err != nil {
 		log.Logger.Mark("Config").Fatalln(err)
