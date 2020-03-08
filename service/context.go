@@ -85,3 +85,14 @@ func (c *Ctx) SetUserInfo(userInfo string) {
 	cc = context.WithValue(c.Request.Context(), "auth_user_info", userInfo)
 	c.Request = c.Request.WithContext(cc)
 }
+
+func (c *Ctx) User() interface{} {
+	info := c.Request.Context().Value("auth_user")
+	return info
+}
+
+func (c *Ctx) SetUser(user interface{}) {
+	var cc context.Context
+	cc = context.WithValue(c.Request.Context(), "auth_user", user)
+	c.Request = c.Request.WithContext(cc)
+}
