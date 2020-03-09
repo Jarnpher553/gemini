@@ -71,3 +71,11 @@ func Run() {
 func Stop() {
 	delay.cancel()
 }
+
+func Join(taskName string, duration time.Duration, value string) {
+	delay.options.Redis.ZAdd(taskName, redis.Z{Score: float64(time.Now().Add(duration).UnixNano() / 1e6), Member: value})
+}
+
+func Timestamp(taskName string, value string) float64 {
+	return delay.options.Redis.ZScore(taskName, value).Val()
+}

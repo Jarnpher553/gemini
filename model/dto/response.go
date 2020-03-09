@@ -21,3 +21,7 @@ type PagedOut struct {
 	QueryCount int         `json:"query_count"`
 	Rows       interface{} `json:"rows"`
 }
+
+type ListOut struct {
+	Rows interface{} `json:"rows"`
+}
