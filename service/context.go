@@ -27,11 +27,20 @@ type HandlerFunc func(*Ctx)
 
 func (c *Ctx) Csv(data []byte, filename string) {
 	c.Header("Content-Disposition", "attachment; filename="+filename+".csv")
-	c.Data(erro.ErrSuccess, "text/csv", data)
+	c.Data(http.StatusOK, "text/csv", data)
+}
+
+func (c *Ctx) Pdf(data []byte, filename string) {
+	c.Header("Content-Disposition", "filename="+filename+".pdf")
+	c.Data(http.StatusOK, "application/pdf", data)
 }
 
 func (c *Ctx) Success(data interface{}) {
-	log.Logger.Caller(2).Infoln(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], fmt.Sprintf("%#v", data))
+	dataStr := fmt.Sprintf("%v", data)
+	if len(dataStr) > 255 {
+		dataStr = dataStr[:255]
+	}
+	log.Logger.Caller(2).Infoln(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr+"...")
 	c.response(erro.ErrSuccess, data)
 }
 

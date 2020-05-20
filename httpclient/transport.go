@@ -41,6 +41,11 @@ func InjectHttp(r *http.Request) func(model.SpanContext) {
 
 		r.Header.Set("jar-traceid", sc.TraceID.String())
 		r.Header.Set("jar-spanid", sc.ID.String())
-		r.Header.Set("jar-parentid", sc.ParentID.String())
+
+		if sc.ParentID != nil {
+			r.Header.Set("jar-parentid", sc.ParentID.String())
+		} else {
+			r.Header.Set("jar-parentid", "0")
+		}
 	}
 }

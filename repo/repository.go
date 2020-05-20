@@ -90,7 +90,7 @@ func New(options ...Option) *Repository {
 		options[i](repo)
 	}
 
-	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", repo.userName, repo.password, repo.addr, repo.dbName))
+	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", repo.userName, repo.password, repo.addr, repo.dbName))
 
 	if err != nil {
 		entry.Fatalln(err)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Jarnpher553/micro-core/uuid"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Jarnpher553/micro-core/breaker"
@@ -83,7 +84,10 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 			_, err := cb.Execute(func() (i interface{}, e error) {
 				defer func() {
 					if err := recover(); err != nil {
-						e = fmt.Errorf("%v", err)
+						//var buf [2 << 10]byte
+						//stack := string(buf[:runtime.Stack(buf[:], true)])
+						action := strings.Split(ctx.Request.URL.Path, "/")
+						e = fmt.Errorf("%v service %s action %s", err, srv.Node().ServerName, action[2]+"."+action[3])
 					}
 				}()
 				ctx.Next()
