@@ -148,242 +148,49 @@ func (r *Router) Register(srv service.IBaseService) {
 		method := serviceType.Method(i)
 		methodName := method.Name
 		_func := method.Func
+
+		//入参不满足
+		if _func.Type().NumIn() != 2 || _func.Type().In(1) != reflect.TypeOf(&service.Handler{}) {
+			continue
+		}
+		//出参不满足
+		if _func.Type().NumOut() != 1 || _func.Type().Out(0) != reflect.TypeOf(service.HandlerFunc(func(ctx *service.Ctx) {})) {
+			continue
+		}
+
+		re := regexp.MustCompile(`(?i:(post|get|delete|put|head|patch|options|)(.*))`)
+		matches := re.FindAllStringSubmatch(methodName, -1)
+		if matches == nil {
+			continue
+		}
+		ret := _func.Call([]reflect.Value{serviceVal, reflect.ValueOf(&handler)})
+
 		var httpMethod string
-		var needRoute bool
-		if strings.Contains(strings.ToLower(methodName), "post") {
-			httpMethod = "POST"
-			needRoute = true
-		} else if strings.Contains(strings.ToLower(methodName), "get") {
+		if handler.HttpMethod == "" {
+			hm := strings.ToTitle(matches[0][1])
+			if hm != "" {
+				httpMethod = strings.ToTitle(hm)
+			}
+		} else {
+			httpMethod = handler.HttpMethod
+		}
+		if httpMethod == "" {
 			httpMethod = "GET"
-			needRoute = true
-		} else if strings.Contains(strings.ToLower(methodName), "delete") {
-			httpMethod = "DELETE"
-			needRoute = true
-		} else if strings.Contains(strings.ToLower(methodName), "put") {
-			httpMethod = "PUT"
-			needRoute = true
-		} else if strings.Contains(strings.ToLower(methodName), "head") {
-			httpMethod = "HEAD"
-			needRoute = true
-		} else if strings.Contains(strings.ToLower(methodName), "patch") {
-			httpMethod = "PATCH"
-
-		} else if strings.Contains(strings.ToLower(methodName), "options") {
-			httpMethod = "OPTIONS"
-			needRoute = true
 		}
-		if needRoute == true {
-			ret := _func.Call([]reflect.Value{serviceVal, reflect.ValueOf(&handler)})
-			var relativePath string
-			re := regexp.MustCompile(`(?i:(post|get|delete|put|head|patch|options)(.*))`)
-			if handler.RelativePath == "" {
-				matches := re.FindAllStringSubmatch(methodName, -1)
-				match := matches[0][2]
-				if match != "" {
-					relativePath = strings.ToLower(matches[0][2][0:1]) + matches[0][2][1:]
-				}
-			} else {
-				relativePath = handler.RelativePath
+		var relativePath string
+		if handler.RelativePath == "" {
+			path := matches[0][2]
+			if path != "" {
+				relativePath = strings.ToLower(path[0:1]) + path[1:]
 			}
-			var middleware []gin.HandlerFunc
-			for _, m := range handler.Middleware {
-				middleware = append(middleware, service.Wrapper(m(srv)))
-			}
-			middleware = append(middleware, service.Wrapper(ret[0].Interface().(service.HandlerFunc)))
-			group.Handle(httpMethod, relativePath, middleware...)
+		} else {
+			relativePath = handler.RelativePath
 		}
+		var middleware []gin.HandlerFunc
+		for _, m := range handler.Middleware {
+			middleware = append(middleware, service.Wrapper(m(srv)))
+		}
+		middleware = append(middleware, service.Wrapper(ret[0].Interface().(service.HandlerFunc)))
+		group.Handle(httpMethod, relativePath, middleware...)
 	}
-
-	////服务注册路由
-	//group.Handle("POST", "", service.Wrapper(func(context *service.Ctx) {
-	//	var handler service.Handler
-	//	srv.Use(&handler)
-	//
-	//	post := srv.Post(&handler)
-	//
-	//	for _, m := range handler.Middleware {
-	//		m(srv)(context)
-	//
-	//		if context.IsAborted() {
-	//			return
-	//		}
-	//	}
-	//
-	//	post(context)
-	//}))
-	//
-	//group.Handle("POST", "/:action", service.Wrapper(func(context *service.Ctx) {
-	//	action := strings.Title(context.Param("action"))
-	//	method, exist := serviceType.MethodByName("Post" + action)
-	//	if !exist {
-	//		context.String(http.StatusNotFound, "404 page not found")
-	//		return
-	//	}
-	//
-	//	var handler service.Handler
-	//	srv.Use(&handler)
-	//	ret := method.Func.Call([]reflect.Value{serviceVal, reflect.ValueOf(&handler)})
-	//
-	//	for _, m := range handler.Middleware {
-	//		m(srv)(context)
-	//
-	//		if context.IsAborted() {
-	//			return
-	//		}
-	//	}
-	//
-	//	ret[0].Interface().(service.HandlerFunc)(context)
-	//}))
-	//
-	//group.Handle("DELETE", "", service.Wrapper(func(context *service.Ctx) {
-	//	var handler service.Handler
-	//	srv.Use(&handler)
-	//
-	//	deleteBatch := srv.DeleteBatch(&handler)
-	//
-	//	for _, m := range handler.Middleware {
-	//		m(srv)(context)
-	//
-	//		if context.IsAborted() {
-	//			return
-	//		}
-	//	}
-	//
-	//	deleteBatch(context)
-	//}))
-	//
-	//group.Handle("DELETE", "/:id", service.Wrapper(func(context *service.Ctx) {
-	//	idStr := context.Param("id")
-	//
-	//	_, err1 := strconv.Atoi(idStr)
-	//	err2 := uuid.IsGUID(idStr)
-	//	if err1 != nil && err2 != nil {
-	//		context.String(http.StatusNotFound, "404 page not found")
-	//		return
-	//	} else {
-	//		context.Params = gin.Params{
-	//			gin.Param{
-	//				Key:   "id",
-	//				Value: idStr,
-	//			},
-	//		}
-	//
-	//		var handler service.Handler
-	//		srv.Use(&handler)
-	//
-	//		del := srv.Delete(&handler)
-	//
-	//		for _, m := range handler.Middleware {
-	//			m(srv)(context)
-	//
-	//			if context.IsAborted() {
-	//				return
-	//			}
-	//		}
-	//
-	//		del(context)
-	//	}
-	//}))
-	//
-	//group.Handle("PUT", "/:id", service.Wrapper(func(context *service.Ctx) {
-	//	idStr := context.Param("id")
-	//
-	//	_, err1 := strconv.Atoi(idStr)
-	//	err2 := uuid.IsGUID(idStr)
-	//	if err1 != nil && err2 != nil {
-	//		context.String(http.StatusNotFound, "404 page not found")
-	//		return
-	//	} else {
-	//		context.Params = gin.Params{
-	//			gin.Param{
-	//				Key:   "id",
-	//				Value: idStr,
-	//			},
-	//		}
-	//
-	//		var handler service.Handler
-	//		srv.Use(&handler)
-	//
-	//		put := srv.Put(&handler)
-	//
-	//		for _, m := range handler.Middleware {
-	//			m(srv)(context)
-	//
-	//			if context.IsAborted() {
-	//				return
-	//			}
-	//		}
-	//
-	//		put(context)
-	//	}
-	//}))
-	//
-	//group.Handle("GET", "", service.Wrapper(func(context *service.Ctx) {
-	//	var handler service.Handler
-	//	srv.Use(&handler)
-	//
-	//	getList := srv.GetList(&handler)
-	//
-	//	for _, m := range handler.Middleware {
-	//		m(srv)(context)
-	//
-	//		if context.IsAborted() {
-	//			return
-	//		}
-	//	}
-	//
-	//	getList(context)
-	//}))
-	//
-	//group.Handle("GET", "/:actionOrID", service.Wrapper(func(context *service.Ctx) {
-	//	actionOrID := context.Param("actionOrID")
-	//
-	//	_, err1 := strconv.Atoi(actionOrID)
-	//	err2 := uuid.IsGUID(actionOrID)
-	//	if err1 != nil && err2 != nil {
-	//		action := strings.Title(actionOrID)
-	//		method, exist := serviceType.MethodByName("Get" + action)
-	//		if !exist {
-	//			context.String(http.StatusNotFound, "404 page not found")
-	//			return
-	//		}
-	//
-	//		var handler service.Handler
-	//		srv.Use(&handler)
-	//
-	//		ret := method.Func.Call([]reflect.Value{serviceVal, reflect.ValueOf(&handler)})
-	//
-	//		for _, m := range handler.Middleware {
-	//			m(srv)(context)
-	//
-	//			if context.IsAborted() {
-	//				return
-	//			}
-	//		}
-	//
-	//		ret[0].Interface().(service.HandlerFunc)(context)
-	//	} else {
-	//		context.Params = gin.Params{
-	//			gin.Param{
-	//				Key:   "id",
-	//				Value: actionOrID,
-	//			},
-	//		}
-	//
-	//		var handler service.Handler
-	//		srv.Use(&handler)
-	//
-	//		get := srv.Get(&handler)
-	//
-	//		for _, m := range handler.Middleware {
-	//			m(srv)(context)
-	//
-	//			if context.IsAborted() {
-	//				return
-	//			}
-	//		}
-	//
-	//		get(context)
-	//	}
-	//}))
 }
