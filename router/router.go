@@ -125,6 +125,9 @@ func (r *Router) Register(srv service.IBaseService) {
 	var handler service.Handler
 	srv.Use(&handler)
 	var middleware []gin.HandlerFunc
+	for _, h := range handler.GinMiddleware {
+		middleware = append(middleware, h)
+	}
 	for _, m := range handler.Middleware {
 		middleware = append(middleware, service.Wrapper(m(srv)))
 	}
@@ -187,6 +190,9 @@ func (r *Router) Register(srv service.IBaseService) {
 			relativePath = handler.RelativePath
 		}
 		var middleware []gin.HandlerFunc
+		for _, h := range handler.GinMiddleware {
+			middleware = append(middleware, h)
+		}
 		for _, m := range handler.Middleware {
 			middleware = append(middleware, service.Wrapper(m(srv)))
 		}

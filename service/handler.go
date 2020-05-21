@@ -1,15 +1,23 @@
 package service
 
-import "strings"
+import (
+	"github.com/gin-gonic/gin"
+	"strings"
+)
 
 type Handler struct {
-	Middleware   []Middleware
-	RelativePath string
-	HttpMethod   string
+	Middleware    []Middleware
+	GinMiddleware []gin.HandlerFunc
+	RelativePath  string
+	HttpMethod    string
 }
 
 func (h *Handler) UseMiddleware(m ...Middleware) {
 	h.Middleware = append(h.Middleware, m...)
+}
+
+func (h *Handler) Use(handlerFunc ...gin.HandlerFunc) {
+	h.GinMiddleware = append(h.GinMiddleware, handlerFunc...)
 }
 
 func (h *Handler) Route(httpMethod string, path string) {
