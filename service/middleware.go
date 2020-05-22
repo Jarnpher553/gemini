@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jarnpher553/micro-core/uuid"
+	"github.com/sony/gobreaker"
 	"strconv"
 	"strings"
 	"time"
@@ -84,8 +85,6 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 			_, err := cb.Execute(func() (i interface{}, e error) {
 				defer func() {
 					if err := recover(); err != nil {
-						//var buf [2 << 10]byte
-						//stack := string(buf[:runtime.Stack(buf[:], true)])
 						action := strings.Split(ctx.Request.URL.Path, "/")
 						e = fmt.Errorf("%v service %s action %s", err, srv.Node().ServerName, action[2]+"."+action[3])
 					}
@@ -94,13 +93,16 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 				return nil, nil
 			})
 
-			if err != nil {
+			switch cb.State() {
+			case gobreaker.StateClosed:
+				log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrDefault], err)
+				ctx.Response(erro.ErrDefault, nil)
+			case gobreaker.StateOpen:
 				log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrBreaker], err)
-
 				ctx.Response(erro.ErrBreaker, nil)
-				ctx.Abort()
-				return
 			}
+			ctx.Abort()
+			return
 		}
 	}
 }
