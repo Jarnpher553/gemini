@@ -1,6 +1,7 @@
 module github.com/Jarnpher553/micro-core
 
 require (
+	github.com/Jarnpher553/gron v0.0.0-20200109095312-63398f60d047
 	github.com/Jarnpher553/viper v1.4.1-0.20190619031735-b954551383d3
 	github.com/antonfisher/nested-logrus-formatter v1.0.2
 	github.com/armon/go-metrics v0.0.0-20190430140413-ec5e00d3c878 // indirect
