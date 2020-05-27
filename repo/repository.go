@@ -19,6 +19,7 @@ type Repository struct {
 	host     string
 	port     string
 	dbName   string
+	logMode  bool
 }
 
 // FieldName 字段类
@@ -37,6 +38,12 @@ type Option func(*Repository)
 func UserName(userName string) Option {
 	return func(repository *Repository) {
 		repository.userName = userName
+	}
+}
+
+func LogMode(mode bool) Option {
+	return func(repository *Repository) {
+		repository.logMode = mode
 	}
 }
 
@@ -99,7 +106,7 @@ func New(options ...Option) *Repository {
 	db.DB().SetMaxOpenConns(100)
 	db.DB().SetMaxIdleConns(10)
 	db.SetLogger(repo)
-	db.LogMode(true)
+	db.LogMode(repo.logMode)
 	repo.DB = db
 
 	return repo
