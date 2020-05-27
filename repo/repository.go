@@ -85,10 +85,6 @@ var entry = log.Logger.Mark("Repo")
 
 // New 构造函数
 func New(options ...Option) *Repository {
-	if len(options) != 4 {
-		return nil
-	}
-
 	repo := &Repository{
 		LogrusEntry: entry,
 	}
