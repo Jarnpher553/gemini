@@ -93,16 +93,18 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 				return nil, nil
 			})
 
-			switch cb.State() {
-			case gobreaker.StateClosed:
-				log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrDefault], err)
-				ctx.Response(erro.ErrDefault, nil)
-			case gobreaker.StateOpen:
-				log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrBreaker], err)
-				ctx.Response(erro.ErrBreaker, nil)
+			if err != nil {
+				switch cb.State() {
+				case gobreaker.StateClosed:
+					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrDefault], err)
+					ctx.Response(erro.ErrDefault, nil)
+				case gobreaker.StateOpen:
+					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrBreaker], err)
+					ctx.Response(erro.ErrBreaker, nil)
+				}
+				ctx.Abort()
+				return
 			}
-			ctx.Abort()
-			return
 		}
 	}
 }
