@@ -138,7 +138,7 @@ func (r *Router) Register(srv service.IBaseService) {
 	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Option().Limiter)(srv)))
 	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Option().Cb)(srv)))
 	group.Use(service.Wrapper(service.MetricMiddleware(srv.Option().Metric)(srv)))
-	group.Use(service.Wrapper(service.ExtractHttpMiddleware()(srv)))
+	//group.Use(service.Wrapper(service.ExtractHttpMiddleware()(srv)))
 	group.Use(service.Wrapper(service.TracerMiddleware(srv.Option().Tracer, name)(srv)))
 
 	//注册自定义中间件

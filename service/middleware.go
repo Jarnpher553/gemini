@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jarnpher553/micro-core/uuid"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sony/gobreaker"
 	"strconv"
 	"strings"
@@ -16,8 +18,6 @@ import (
 	"github.com/Jarnpher553/micro-core/log"
 	"github.com/Jarnpher553/micro-core/metric"
 	"github.com/Jarnpher553/micro-core/tracing"
-	"github.com/openzipkin/zipkin-go"
-	"github.com/openzipkin/zipkin-go/model"
 )
 
 // Middleware 中间件
@@ -51,25 +51,23 @@ func MetricMiddleware(m *metric.Metric) Middleware {
 func TracerMiddleware(t *tracing.Tracer, name string) Middleware {
 	return func(srv IBaseService) HandlerFunc {
 		return func(context *Ctx) {
-			var sc model.SpanContext
+			sc, _ := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(context.Request.Header))
 
-			if parentSc := tracing.SpanContextFromContext(context.Request.Context()); parentSc != nil {
-				sc = *parentSc
-			}
-
-			ep, _ := zipkin.NewEndpoint("", context.ClientIP())
-			sp := t.StartSpan(name, zipkin.Parent(sc), zipkin.Kind(model.Server), zipkin.StartTime(time.Now()), zipkin.RemoteEndpoint(ep))
-
-			zipkin.TagHTTPMethod.Set(sp, context.Request.Method)
-			zipkin.TagHTTPPath.Set(sp, context.Request.URL.Path)
+			span := opentracing.StartSpan(srv.Node().ServerName+"."+srv.Node().Name,
+				opentracing.ChildOf(sc),
+				ext.SpanKindRPCServer,
+				opentracing.StartTime(time.Now()),
+				opentracing.Tag{Key: string(ext.HTTPUrl), Value: context.Request.URL.Path},
+				opentracing.Tag{Key: string(ext.HTTPMethod), Value: context.Request.Method},
+			)
 
 			defer func() {
 				code := context.Writer.Status()
-				zipkin.TagHTTPStatusCode.Set(sp, strconv.Itoa(code))
-				sp.Finish()
+				span.SetTag(string(ext.HTTPStatusCode), strconv.Itoa(code))
+				defer span.Finish()
 			}()
 
-			ctx := tracing.NewContext(context.Request.Context(), sp)
+			ctx := opentracing.ContextWithSpan(context.Request.Context(), span)
 
 			rNew := context.Request.WithContext(ctx)
 			context.Request = rNew

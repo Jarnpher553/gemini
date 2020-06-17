@@ -33,19 +33,21 @@ require (
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/onsi/ginkgo v1.8.0 // indirect
-	github.com/openzipkin/zipkin-go v0.1.6
+	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5 // indirect
+	github.com/openzipkin/zipkin-go v0.2.1
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
-	github.com/roylee0704/gron v0.0.0-20160621042432-e78485adab46
+	github.com/roylee0704/gron v0.0.0-20160621042432-e78485adab46 // indirect
 	github.com/rs/xid v1.2.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sirupsen/logrus v1.4.2
 	github.com/sony/gobreaker v0.4.1
 	github.com/tidwall/pretty v1.0.0 // indirect
+	github.com/uber/jaeger-client-go v2.24.0+incompatible // indirect
+	github.com/uber/jaeger-lib v2.2.0+incompatible // indirect
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.0.3
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
 	golang.org/x/sys v0.0.0-20190602015325-4c4f7f33c9ed // indirect
 	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4

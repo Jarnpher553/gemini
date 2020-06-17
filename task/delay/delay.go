@@ -79,3 +79,11 @@ func Join(taskName string, duration time.Duration, value string) {
 func Timestamp(taskName string, value string) float64 {
 	return delay.options.Redis.ZScore(taskName, value).Val()
 }
+
+func Exist(taskName string, value string) bool {
+	err := delay.options.Redis.ZRank(taskName, value).Err()
+	if err == redis.Nil {
+		return false
+	}
+	return true
+}

@@ -2,21 +2,23 @@ package service
 
 import (
 	"fmt"
-	"github.com/Jarnpher553/micro-core/log"
-	consul "github.com/hashicorp/consul/api"
-	"math/rand"
+	"github.com/Jarnpher553/micro-core/service/selector"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/Jarnpher553/micro-core/log"
+	consul "github.com/hashicorp/consul/api"
 )
 
 type Registry struct {
 	sync.Mutex
 	*consul.Client
-	Services  []*NodeInfo
+	Services []*NodeInfo
+	selector selector.Selector
 }
 
-func NewRegistry(addr string) *Registry {
+func NewRegistry(addr string, s ...selector.Selector) *Registry {
 	config := consul.DefaultConfig()
 	config.Address = addr
 	cli, err := consul.NewClient(config)
@@ -24,10 +26,16 @@ func NewRegistry(addr string) *Registry {
 		log.Logger.Mark("Registry").Fatalln(err)
 	}
 
-	return &Registry{
+	r := &Registry{
 		Client:   cli,
 		Services: make([]*NodeInfo, 0),
 	}
+	if len(s) == 0 {
+		r.selector = selector.RoundRobin()
+	} else {
+		r.selector = s[0]
+	}
+	return r
 }
 
 func (r *Registry) InjectSlice(services ...IBaseService) {
@@ -118,18 +126,8 @@ func (r *Registry) GetService(name string) (*NodeInfo, error) {
 	if len(nodes) == 0 {
 		return nil, fmt.Errorf("%s service not found", name)
 	}
-	node := selector(nodes)
+	node := nodes[r.selector(len(nodes))]
 
 	log.Logger.Mark("Registry").Infof(`get service {"id":"%s", "name":"%s"} ok`, node.Id, node.Name)
 	return node, nil
-}
-
-func selector(nodes []*NodeInfo) *NodeInfo {
-	l := len(nodes)
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	index := r.Intn(l)
-
-	return nodes[index]
 }

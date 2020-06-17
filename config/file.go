@@ -5,34 +5,19 @@ import (
 	"github.com/Jarnpher553/viper"
 )
 
-func init() {
-	conf = &Config{
-		Viper: viper.New(),
-	}
-
-	conf.AddConfigPath(".")
-	conf.SetConfigName("config")
-	conf.SetConfigType("yaml")
-
-	conf.Generate()
-}
-
 // File 构造函数
 func File(options ...Option) {
-	conf = &Config{
-		Viper: viper.New(),
-	}
-
+	v := viper.GetViper()
 	for i := range options {
-		options[i](conf.Viper)
+		options[i](v)
 	}
 
-	conf.Generate()
+	generate()
 }
 
 // generate 配置生成
-func (c *Config) Generate() {
-	err := c.ReadInConfig()
+func generate() {
+	err := viper.ReadInConfig()
 	if err != nil {
 		log.Logger.Mark("Config").Fatalln(err)
 	}

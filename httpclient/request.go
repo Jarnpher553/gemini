@@ -4,11 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Jarnpher553/micro-core/tracing"
-	"github.com/openzipkin/zipkin-go"
-	"github.com/openzipkin/zipkin-go/model"
 	"gopkg.in/resty.v1"
 	"net/http"
-	"time"
 )
 
 // ReqClient http客户端
@@ -37,14 +34,16 @@ func Name(name string) Option {
 // New 构造函数
 func New(options ...Option) *ReqClient {
 	client := resty.GetClient()
-	client.Transport = &Transport{
-		http.DefaultTransport,
-	}
 
 	rc := &ReqClient{}
 
 	for _, option := range options {
 		option(rc)
+	}
+
+	client.Transport = &Transport{
+		http.DefaultTransport,
+		rc.ServiceName,
 	}
 
 	return rc
@@ -58,12 +57,12 @@ func R() *resty.Request {
 func (c *ReqClient) RGet(url string, query map[string]string, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	if c.Tracer != nil {
-		sp := c.getSpan(ctx, url, "GET")
-		defer sp.Finish()
-
-		ctx = tracing.NewContext(request.Context(), sp)
-	}
+	//if c.Tracer != nil {
+	//	sp := c.getSpan(ctx, url, "GET")
+	//	defer sp.Finish()
+	//
+	//	ctx = tracing.NewContext(request.Context(), sp)
+	//}
 
 	resp, err := request.SetContext(ctx).
 		SetQueryParams(query).
@@ -85,12 +84,12 @@ func (c *ReqClient) RGet(url string, query map[string]string, ctx context.Contex
 func (c *ReqClient) RPost(url string, body interface{}, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	if c.Tracer != nil {
-		sp := c.getSpan(ctx, url, "POST")
-		defer sp.Finish()
-
-		ctx = tracing.NewContext(request.Context(), sp)
-	}
+	//if c.Tracer != nil {
+	//	sp := c.getSpan(ctx, url, "POST")
+	//	defer sp.Finish()
+	//
+	//	ctx = tracing.NewContext(request.Context(), sp)
+	//}
 
 	_, err := request.SetContext(ctx).
 		SetBody(body).
@@ -108,12 +107,12 @@ func (c *ReqClient) RPost(url string, body interface{}, ctx context.Context, v i
 func (c *ReqClient) RPut(url string, body interface{}, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	if c.Tracer != nil {
-		sp := c.getSpan(ctx, url, "PUT")
-		defer sp.Finish()
-
-		ctx = tracing.NewContext(request.Context(), sp)
-	}
+	//if c.Tracer != nil {
+	//	sp := c.getSpan(ctx, url, "PUT")
+	//	defer sp.Finish()
+	//
+	//	ctx = tracing.NewContext(request.Context(), sp)
+	//}
 
 	_, err := request.SetContext(ctx).
 		SetBody(body).
@@ -131,12 +130,12 @@ func (c *ReqClient) RPut(url string, body interface{}, ctx context.Context, v in
 func (c *ReqClient) RDelete(url string, query map[string]string, ctx context.Context, v interface{}) error {
 	request := resty.R()
 
-	if c.Tracer != nil {
-		sp := c.getSpan(ctx, url, "DELETE")
-		defer sp.Finish()
-
-		ctx = tracing.NewContext(request.Context(), sp)
-	}
+	//if c.Tracer != nil {
+	//	sp := c.getSpan(ctx, url, "DELETE")
+	//	defer sp.Finish()
+	//
+	//	ctx = tracing.NewContext(request.Context(), sp)
+	//}
 
 	request = request.SetContext(ctx).SetResult(v)
 	if query != nil {
@@ -153,15 +152,15 @@ func (c *ReqClient) RDelete(url string, query map[string]string, ctx context.Con
 }
 
 // getSpan 获取上下文跟踪对象
-func (c *ReqClient) getSpan(ctx context.Context, url string, method string) zipkin.Span {
-	var sc model.SpanContext
-	if parentSpan := tracing.SpanFromContext(ctx); parentSpan != nil {
-		sc = parentSpan.Context()
-	}
-
-	sp := c.Tracer.StartSpan(c.ServiceName, zipkin.Kind(model.Client), zipkin.Parent(sc), zipkin.StartTime(time.Now()))
-	zipkin.TagHTTPUrl.Set(sp, url)
-	zipkin.TagHTTPMethod.Set(sp, method)
-
-	return sp
-}
+//func (c *ReqClient) getSpan(ctx context.Context, url string, method string) zipkin.Span {
+//	var sc model.SpanContext
+//	if parentSpan := tracing.SpanFromContext(ctx); parentSpan != nil {
+//		sc = parentSpan.Context()
+//	}
+//
+//	sp := c.Tracer.StartSpan(c.ServiceName, zipkin.Kind(model.Client), zipkin.Parent(sc), zipkin.StartTime(time.Now()))
+//	zipkin.TagHTTPUrl.Set(sp, url)
+//	zipkin.TagHTTPMethod.Set(sp, method)
+//
+//	return sp
+//}

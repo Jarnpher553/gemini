@@ -5,19 +5,19 @@ import (
 	"github.com/Jarnpher553/viper"
 )
 
-type Config struct {
-	*viper.Viper
+type Config = viper.Viper
+
+//默认使用当前文件夹下的config.yaml文件
+func init() {
+	viper.AddConfigPath(".")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+
+	generate()
 }
 
-var (
-	conf *Config
-)
-
 func Conf() *Config {
-	if conf == nil {
-		log.Logger.Mark("Config").Fatalln("must be constructed before")
-	}
-	return conf
+	return viper.GetViper()
 }
 
 // Option 配置项方法

@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"github.com/Jarnpher553/micro-core/log"
 	"github.com/go-redis/redis"
 	"time"
 )
@@ -41,6 +42,8 @@ func PoolSize(size int) Option {
 	}
 }
 
+var entry = log.Logger.Mark("Redis")
+
 // New 构造函数
 func New(options ...Option) *RdClient {
 	option := &redis.Options{}
@@ -49,9 +52,15 @@ func New(options ...Option) *RdClient {
 		op(option)
 	}
 
-	return &RdClient{
+	client := &RdClient{
 		redis.NewClient(option),
 	}
+
+	err := client.Ping().Err()
+	if err != nil {
+		entry.Fatalln("redis connected error:", err.Error())
+	}
+	return client
 }
 
 // 以下是redis操作

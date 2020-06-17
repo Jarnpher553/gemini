@@ -7,20 +7,18 @@ import (
 import _ "github.com/Jarnpher553/viper/remote"
 
 func Remote(opts ...Option) {
-	conf = &Config{
-		Viper: viper.New(),
-	}
+	v := viper.GetViper()
 
 	for _, opt := range opts {
-		opt(conf.Viper)
+		opt(v)
 	}
 
-	conf.generateRemote()
+	generateRemote()
 }
 
 // generate 配置生成
-func (c *Config) generateRemote() {
-	if err := c.ReadRemoteConfig(); err != nil {
+func generateRemote() {
+	if err := viper.ReadRemoteConfig(); err != nil {
 		log.Logger.Mark("Config").Fatalln(err)
 	}
 }

@@ -2,15 +2,17 @@ package tracing
 
 import (
 	"context"
+	"github.com/Jarnpher553/micro-core/log"
+	"github.com/opentracing/opentracing-go"
+	zipkinAdapter "github.com/openzipkin-contrib/zipkin-go-opentracing"
 	"github.com/openzipkin/zipkin-go"
 	"github.com/openzipkin/zipkin-go/model"
 	"github.com/openzipkin/zipkin-go/reporter"
-	"github.com/Jarnpher553/micro-core/log"
 )
 
 // Tracer 跟踪类
 type Tracer struct {
-	*zipkin.Tracer
+	opentracing.Tracer
 }
 
 // New 构造函数
@@ -20,8 +22,12 @@ func New(reporter reporter.Reporter) *Tracer {
 	if err != nil {
 		log.Logger.Mark("Tracer").Fatalln(err)
 	}
+
+	tracer := zipkinAdapter.Wrap(t)
+	opentracing.SetGlobalTracer(tracer)
+
 	return &Tracer{
-		Tracer: t,
+		Tracer: tracer,
 	}
 }
 
