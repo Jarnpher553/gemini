@@ -99,6 +99,8 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 				case gobreaker.StateOpen:
 					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrBreaker], err)
 					ctx.Response(erro.ErrBreaker, nil)
+				case gobreaker.StateHalfOpen:
+					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrMaxRequest], err)
 				}
 				ctx.Abort()
 				return
