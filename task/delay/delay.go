@@ -51,7 +51,7 @@ func Run() {
 					log.Logger.Mark("TASK DELAY").Infoln(k, "stopped")
 					break For
 				default:
-					<-time.After(10 * time.Millisecond)
+					<-time.After(100 * time.Millisecond)
 					now := time.Now().UnixNano() / 1e6
 					zset := delay.options.Redis.ZRangeByScoreWithScores(k, redis.ZRangeBy{"-inf", "+inf", 0, 1}).Val()
 					if len(zset) == 0 {

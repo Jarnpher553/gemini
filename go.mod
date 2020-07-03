@@ -1,6 +1,7 @@
 module github.com/Jarnpher553/micro-core
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
 	github.com/Jarnpher553/gron v0.0.0-20200109095312-63398f60d047
 	github.com/Jarnpher553/viper v1.4.1-0.20190619031735-b954551383d3
 	github.com/antonfisher/nested-logrus-formatter v1.0.2
@@ -33,7 +34,8 @@ require (
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/oklog/ulid/v2 v2.0.2
 	github.com/onsi/ginkgo v1.8.0 // indirect
-	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5 // indirect
+	github.com/opentracing/opentracing-go v1.1.0
+	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
 	github.com/openzipkin/zipkin-go v0.2.1
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
 	github.com/roylee0704/gron v0.0.0-20160621042432-e78485adab46 // indirect
