@@ -19,6 +19,9 @@ func NewDailyHook() *DailyHook {
 
 // Fire 钩子方法，根据日志时间和等级输出到不同的文件
 func (h *DailyHook) Fire(entry *logrus.Entry) error {
+	if !Logger.fire {
+		return nil
+	}
 	h.Do(func() {
 		_ = os.MkdirAll(h.filePath, os.ModePerm)
 	})
@@ -58,19 +61,21 @@ func (h *DailyHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-
 // HourHook 每小时日志钩子
 type HourHook struct {
 	filePath string
 	sync.Once
 }
 
-func NewHourHook() *DailyHook {
-	return &DailyHook{filePath: "./logs/"}
+func NewHourHook() *HourHook {
+	return &HourHook{filePath: "./logs/"}
 }
 
 // Fire 钩子方法，根据日志时间和等级输出到不同的文件
 func (h *HourHook) Fire(entry *logrus.Entry) error {
+	if !Logger.fire {
+		return nil
+	}
 	h.Do(func() {
 		_ = os.MkdirAll(h.filePath, os.ModePerm)
 	})

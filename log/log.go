@@ -15,6 +15,7 @@ import (
 // LogrusLogger 日志记录类
 type LogrusLogger struct {
 	*logrus.Logger
+	fire bool
 }
 
 type LogrusEntry struct {
@@ -56,6 +57,10 @@ func SetOutput(output io.Writer) {
 // Mark 打标签，标识日志打印对象
 func (l *LogrusLogger) Mark(key string) *LogrusEntry {
 	return &LogrusEntry{Entry: l.Logger.WithField("", key)}
+}
+
+func (l *LogrusLogger) FireHook(fire bool) {
+	l.fire = fire
 }
 
 // Caller 标识日志打印方法
