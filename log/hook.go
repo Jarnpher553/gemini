@@ -19,9 +19,6 @@ func NewDailyHook() *DailyHook {
 
 // Fire 钩子方法，根据日志时间和等级输出到不同的文件
 func (h *DailyHook) Fire(entry *logrus.Entry) error {
-	if !Logger.fire {
-		return nil
-	}
 	h.Do(func() {
 		_ = os.MkdirAll(h.filePath, os.ModePerm)
 	})
@@ -73,9 +70,6 @@ func NewHourHook() *HourHook {
 
 // Fire 钩子方法，根据日志时间和等级输出到不同的文件
 func (h *HourHook) Fire(entry *logrus.Entry) error {
-	if !Logger.fire {
-		return nil
-	}
 	h.Do(func() {
 		_ = os.MkdirAll(h.filePath, os.ModePerm)
 	})
