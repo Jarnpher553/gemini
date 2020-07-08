@@ -46,7 +46,7 @@ func init() {
 	Logger.SetOutput(os.Stdout)
 
 	//配置钩子，根据日志时间和level打印到对应的文件
-	Logger.AddHook(NewHourHook())
+	//Logger.AddHook(NewHourHook())
 }
 
 // SetOutput 设置日志输出位置
@@ -57,10 +57,6 @@ func SetOutput(output io.Writer) {
 // Mark 打标签，标识日志打印对象
 func (l *LogrusLogger) Mark(key string) *LogrusEntry {
 	return &LogrusEntry{Entry: l.Logger.WithField("", key)}
-}
-
-func (l *LogrusLogger) FireHook(fire bool) {
-	l.fire = fire
 }
 
 // Caller 标识日志打印方法
