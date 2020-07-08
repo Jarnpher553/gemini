@@ -1,6 +1,7 @@
 package log
 
 import (
+	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/sirupsen/logrus"
 	"io"
 	"runtime"
@@ -32,14 +33,20 @@ func init() {
 		Logger: logrus.New(),
 	}
 
-	//Logger.SetFormatter(&nested.Formatter{
-	//	HideKeys:        true,
-	//	TimestampFormat: "2006-01-02 15:04:05",
-	//	ShowFullLevel:   true,
-	//	TrimMessages:    true,
-	//})
+	Logger.SetFormatter(&nested.Formatter{
+		FieldsOrder: []string{
+			"source",
+			"module",
+			"method",
+		},
+		HideKeys:        true,
+		TimestampFormat: "2006-01-02 15:04:05",
+		ShowFullLevel:   true,
+		TrimMessages:    true,
+		NoColors:        true,
+	})
 
-	Logger.SetFormatter(&logrus.JSONFormatter{})
+	//Logger.SetFormatter(&logrus.JSONFormatter{})
 
 	Logger.SetReportCaller(true)
 
@@ -57,7 +64,7 @@ func SetOutput(output io.Writer) {
 
 // Mark 打标签，标识日志打印对象
 func (l *LogrusLogger) Mark(key string) *LogrusEntry {
-	return &LogrusEntry{Entry: l.Logger.WithField("", key)}
+	return &LogrusEntry{Entry: l.Logger.WithField("source", key)}
 }
 
 // Caller 标识日志打印方法
@@ -68,7 +75,6 @@ func (l *LogrusLogger) Caller(skip int) *LogrusEntry {
 	callerSplit := strings.Split(caller, ".")
 
 	callers := make(map[string]interface{})
-	start := 96
 
 	reg1 := regexp.MustCompile(`^func[0-9]$`)
 	reg2 := regexp.MustCompile(`^[0-9]$`)
@@ -76,14 +82,12 @@ func (l *LogrusLogger) Caller(skip int) *LogrusEntry {
 		if reg1.MatchString(callerSplit[i]) || reg2.MatchString(callerSplit[i]) {
 			continue
 		}
-		start++
-		key := string(start)
 		if strings.Contains(callerSplit[i], "/") {
-			callers[key] = strings.Title(strings.Split(callerSplit[i], "/")[1])
+			callers["source"] = strings.Title(strings.Split(callerSplit[i], "/")[1])
 		} else if strings.Contains(callerSplit[i], "*") {
-			callers[key] = strings.Trim(callerSplit[i], "()*")
+			callers["module"] = strings.Trim(callerSplit[i], "()*")
 		} else {
-			callers[key] = callerSplit[i]
+			callers["method"] = callerSplit[i]
 		}
 	}
 
