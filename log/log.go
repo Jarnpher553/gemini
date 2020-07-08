@@ -1,7 +1,6 @@
 package log
 
 import (
-	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/sirupsen/logrus"
 	"io"
 	"runtime"
@@ -33,12 +32,14 @@ func init() {
 		Logger: logrus.New(),
 	}
 
-	Logger.SetFormatter(&nested.Formatter{
-		HideKeys:        true,
-		TimestampFormat: "2006-01-02 15:04:05",
-		ShowFullLevel:   true,
-		TrimMessages:    true,
-	})
+	//Logger.SetFormatter(&nested.Formatter{
+	//	HideKeys:        true,
+	//	TimestampFormat: "2006-01-02 15:04:05",
+	//	ShowFullLevel:   true,
+	//	TrimMessages:    true,
+	//})
+
+	Logger.SetFormatter(&logrus.JSONFormatter{})
 
 	Logger.SetReportCaller(true)
 
