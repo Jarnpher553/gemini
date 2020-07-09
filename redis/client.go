@@ -9,6 +9,7 @@ import (
 // RdClient redis客户端类
 type RdClient struct {
 	*redis.Client
+	logger *log.ZapLogger
 }
 
 // Option 配置项方法
@@ -42,8 +43,6 @@ func PoolSize(size int) Option {
 	}
 }
 
-var entry = log.Logger.Mark("Redis")
-
 // New 构造函数
 func New(options ...Option) *RdClient {
 	option := &redis.Options{}
@@ -54,11 +53,12 @@ func New(options ...Option) *RdClient {
 
 	client := &RdClient{
 		redis.NewClient(option),
+		log.Zap.Mark("Redis"),
 	}
 
 	err := client.Ping().Err()
 	if err != nil {
-		entry.Fatalln("redis connected error:", err.Error())
+		client.logger.Fatal(log.Message("redis connected error:", err.Error()))
 	}
 	return client
 }

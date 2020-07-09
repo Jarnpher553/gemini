@@ -4,11 +4,12 @@ import (
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/sirupsen/logrus"
 	"io"
+	"os"
 	"runtime"
 	"strings"
 
 	//prefixed "github.com/x-cray/logrus-prefixed-formatter"
-	"os"
+	//"os"
 	"regexp"
 )
 
@@ -24,16 +25,16 @@ type LogrusEntry struct {
 
 // 全局日志单例
 var (
-	Logger *LogrusLogger
+	Logrus *LogrusLogger
 )
 
-// init 日志包初始化
-func init() {
-	Logger = &LogrusLogger{
+//init 日志包初始化
+func LogrusN() {
+	Logrus = &LogrusLogger{
 		Logger: logrus.New(),
 	}
 
-	Logger.SetFormatter(&nested.Formatter{
+	Logrus.SetFormatter(&nested.Formatter{
 		FieldsOrder: []string{
 			"source",
 			"module",
@@ -46,20 +47,20 @@ func init() {
 		NoColors:        true,
 	})
 
-	//Logger.SetFormatter(&logrus.JSONFormatter{})
+	//Logrus.SetFormatter(&logrus.JSONFormatter{})
 
-	Logger.SetReportCaller(true)
+	Logrus.SetReportCaller(true)
 
 	//配置输出为标准输出
-	Logger.SetOutput(os.Stdout)
+	Logrus.SetOutput(os.Stdout)
 
 	//配置钩子，根据日志时间和level打印到对应的文件
-	//Logger.AddHook(NewHourHook())
+	//Logrus.AddHook(NewHourHook())
 }
 
 // SetOutput 设置日志输出位置
 func SetOutput(output io.Writer) {
-	Logger.SetOutput(output)
+	Logrus.SetOutput(output)
 }
 
 // Mark 打标签，标识日志打印对象

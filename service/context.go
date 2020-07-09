@@ -40,12 +40,12 @@ func (c *Ctx) Success(data interface{}) {
 	if len(dataStr) > 255 {
 		dataStr = dataStr[:255]
 	}
-	log.Logger.Caller(2).Infoln(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr+"...")
+	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr+"..."))
 	c.response(erro.ErrSuccess, data)
 }
 
 func (c *Ctx) Failure(code int, err error) {
-	log.Logger.Caller(2).Errorln(code, erro.ErrMsg[code], err)
+	log.Zap.Caller(2).Error(log.Message(code, erro.ErrMsg[code], err))
 	c.response(code, nil)
 }
 

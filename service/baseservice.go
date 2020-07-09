@@ -140,7 +140,7 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 	}
 
 	if bs.option.Tracer == nil {
-		bs.option.Tracer = tracing.New(tracing.NewReporter())
+		bs.option.Tracer = tracing.New(tracing.NewZapReporter())
 	}
 
 	if bs.option.Limiter == nil {

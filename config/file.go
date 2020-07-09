@@ -19,6 +19,6 @@ func File(options ...Option) {
 func generate() {
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Logger.Mark("Config").Fatalln(err)
+		logger.Fatal(log.Message(err))
 	}
 }

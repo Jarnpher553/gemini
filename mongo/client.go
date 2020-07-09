@@ -37,7 +37,7 @@ func Collection(cl string) Option {
 	}
 }
 
-var entry = log.Logger.Mark("Mongo")
+var entry = log.Zap.Mark("Mongo")
 
 func New(opts ...Option) *MgoClient {
 	mgo := &MgoClient{}
@@ -48,19 +48,19 @@ func New(opts ...Option) *MgoClient {
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(fmt.Sprintf("mongodb://%s", mgo.addr)))
 	if err != nil {
-		entry.Fatalln(err)
+		entry.Fatal(log.Message(err))
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
-		entry.Fatalln(err)
+		entry.Fatal(log.Message(err))
 	}
 
 	ctx, _ = context.WithTimeout(context.Background(), 2*time.Second)
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		entry.Fatalln(err)
+		entry.Fatal(log.Message(err))
 	}
 
 	mgo.Client = client

@@ -20,7 +20,7 @@ func New(reporter reporter.Reporter) *Tracer {
 	t, err := zipkin.NewTracer(reporter, zipkin.WithSharedSpans(false))
 
 	if err != nil {
-		log.Logger.Mark("Tracer").Fatalln(err)
+		log.Zap.Mark("Tracer").Fatal(log.Message(err))
 	}
 
 	tracer := zipkinAdapter.Wrap(t)

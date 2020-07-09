@@ -23,9 +23,8 @@ type DefaultServer struct {
 	*service.Registry
 	name    string
 	runMode string
+	logger  *log.ZapLogger
 }
-
-var entry = log.Logger.Mark("DefaultServer")
 
 type Option func(server *DefaultServer)
 
@@ -53,7 +52,7 @@ func Name(name string) Option {
 
 		reg := regexp.MustCompile(`^[a-z]+(\.[a-z]+)*$`)
 		if !reg.MatchString(server.name) {
-			entry.Fatalln("wrong format of server name")
+			server.logger.Fatal(log.Message("wrong format of server name"))
 		}
 	}
 }
@@ -73,7 +72,8 @@ func Default(options ...Option) IBaseServer {
 			//WriteTimeout:   10 * time.Second,
 			//MaxHeaderBytes: 1 << 20,
 		},
-		name: "micro",
+		name:   "micro",
+		logger: log.Zap.Mark("DefaultServer"),
 	}
 
 	for _, op := range options {
@@ -91,16 +91,18 @@ func Default(options ...Option) IBaseServer {
 
 // Run 实现IBaseServer接口
 func (s *DefaultServer) Run() {
+	defer log.Zap.Sync()
+
 	r := s.Server.Handler.(*router.Router)
 	for _, s := range r.Services {
 		r.Register(s)
 	}
 
 	go func() {
-		entry.Infof("server listening on %s...", s.Server.Addr)
+		s.logger.Info(log.Messagef("server listening on %s...", s.Server.Addr))
 
 		if err := s.ListenAndServe(); err != nil {
-			entry.Fatalln(err)
+			s.logger.Fatal(log.Message(err))
 		}
 	}()
 

@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"os"
 	"reflect"
 	"regexp"
@@ -28,8 +29,8 @@ type Router struct {
 
 // 初始化 初始化gin输出位置
 func init() {
-	gin.DefaultWriter = log.Logger.Mark("Gin").Writer()
-	gin.DefaultErrorWriter = log.Logger.Mark("Gin").Writer()
+	gin.DefaultWriter = zap.NewStdLog(log.Zap.Mark("Gin").Logger).Writer()
+	gin.DefaultErrorWriter = zap.NewStdLog(log.Zap.Mark("Gin").Logger).Writer()
 }
 
 type Option func(router *Router)

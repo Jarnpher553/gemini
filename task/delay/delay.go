@@ -10,7 +10,7 @@ import (
 )
 
 //失效任务实例
-var delay = &Delay{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}}
+var delay = &Delay{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}, logger: log.Zap.Mark("TaskDelay")}
 
 type Delay struct {
 	options *task.Options
@@ -18,6 +18,7 @@ type Delay struct {
 	m       *sync.Mutex
 	stop    context.Context
 	cancel  context.CancelFunc
+	logger  *log.ZapLogger
 }
 
 //绑定配置并运行
@@ -48,7 +49,7 @@ func Run() {
 			for {
 				select {
 				case <-delay.stop.Done():
-					log.Logger.Mark("TASK DELAY").Infoln(k, "stopped")
+					delay.logger.Info(log.Message(k, "stopped"))
 					break For
 				default:
 					<-time.After(100 * time.Millisecond)

@@ -12,7 +12,7 @@ import _ "github.com/jinzhu/gorm/dialects/mysql"
 // Repository 仓储类
 type Repository struct {
 	*gorm.DB
-	*log.LogrusEntry
+	Logger   *log.ZapLogger
 	userName string
 	password string
 	addr     string
@@ -81,12 +81,10 @@ func DbName(dbName string) Option {
 	}
 }
 
-var entry = log.Logger.Mark("Repo")
-
 // New 构造函数
 func New(options ...Option) *Repository {
 	repo := &Repository{
-		LogrusEntry: entry,
+		Logger: log.Zap.Mark("Repo"),
 	}
 
 	for i := range options {
@@ -96,7 +94,7 @@ func New(options ...Option) *Repository {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", repo.userName, repo.password, repo.addr, repo.dbName))
 
 	if err != nil {
-		entry.Fatalln(err)
+		repo.Logger.Fatal(log.Message(err))
 	}
 
 	db.DB().SetMaxOpenConns(100)
@@ -319,14 +317,14 @@ func (repo *Repository) begin() *Repository {
 
 	//返回一个包含事务的repo
 	return &Repository{
-		userName:    repo.userName,
-		password:    repo.password,
-		host:        repo.host,
-		addr:        repo.addr,
-		port:        repo.port,
-		dbName:      repo.dbName,
-		DB:          tx,
-		LogrusEntry: repo.LogrusEntry,
+		userName: repo.userName,
+		password: repo.password,
+		host:     repo.host,
+		addr:     repo.addr,
+		port:     repo.port,
+		dbName:   repo.dbName,
+		DB:       tx,
+		Logger:   repo.Logger,
 	}
 }
 
@@ -415,7 +413,7 @@ func (repo *Repository) Query(out interface{}, count bool, exps ...Expression) (
 
 func (repo *Repository) Print(args ...interface{}) {
 	formatter := gorm.LogFormatter(args...)
-	repo.LogrusEntry.Info(formatter[2], formatter[3], strings.Replace(formatter[4].(string), "\n", "", -1))
+	repo.Logger.Info(log.Message(formatter[2], formatter[3], strings.Replace(formatter[4].(string), "\n", "", -1)))
 }
 
 func (repo *Repository) Migrate(initial func(*Repository), values ...interface{}) {

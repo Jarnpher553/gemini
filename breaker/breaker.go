@@ -11,7 +11,7 @@ type CircuitBreaker struct {
 	*gobreaker.CircuitBreaker
 }
 
-var l = log.Logger.Mark("Breaker")
+var l = log.Zap.Mark("Breaker")
 var state = map[gobreaker.State]string{
 	0: "close",
 	1: "half-open",
@@ -29,7 +29,7 @@ func New() *CircuitBreaker {
 			return counts.ConsecutiveFailures > 3
 		},
 		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
-			l.Infof("%s change from %d to %d", name, state[from], state[to])
+			l.Info(log.Messagef("%s change from %d to %d", name, state[from], state[to]))
 		},
 	})}
 }

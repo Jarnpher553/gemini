@@ -94,13 +94,13 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 			if err != nil {
 				switch cb.State() {
 				case gobreaker.StateClosed:
-					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrDefault], err)
+					log.Zap.Mark("Breaker").Error(log.Message(erro.ErrMsg[erro.ErrDefault], err))
 					ctx.Response(erro.ErrDefault, nil)
 				case gobreaker.StateOpen:
-					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrBreaker], err)
+					log.Zap.Mark("Breaker").Error(log.Message(erro.ErrMsg[erro.ErrBreaker], err))
 					ctx.Response(erro.ErrBreaker, nil)
 				case gobreaker.StateHalfOpen:
-					log.Logger.Mark("Breaker").Errorln(erro.ErrMsg[erro.ErrMaxRequest], err)
+					log.Zap.Mark("Breaker").Error(log.Message(erro.ErrMsg[erro.ErrMaxRequest], err))
 				}
 				ctx.Abort()
 				return
@@ -114,7 +114,7 @@ func RateLimiterMiddleware(limiter *limit.Limiter) Middleware {
 	return func(srv IBaseService) HandlerFunc {
 		return func(ctx *Ctx) {
 			if !limiter.Allow() {
-				log.Logger.Mark("Limiter").Errorln(erro.ErrMsg[erro.ErrRateLimiter], "rate limit exceeded")
+				log.Zap.Mark("Limiter").Error(log.Message(erro.ErrMsg[erro.ErrRateLimiter], "rate limit exceeded"))
 
 				ctx.Response(erro.ErrRateLimiter, nil)
 				ctx.Abort()
@@ -129,7 +129,7 @@ func DelayLimiterMiddleware(limiter *limit.Limiter) Middleware {
 	return func(srv IBaseService) HandlerFunc {
 		return func(ctx *Ctx) {
 			if err := limiter.Wait(ctx.Request.Context()); err != nil {
-				log.Logger.Mark("Limiter").Errorln(erro.ErrMsg[erro.ErrDelayLimiter], err)
+				log.Zap.Mark("Limiter").Error(log.Message(erro.ErrMsg[erro.ErrDelayLimiter], err))
 
 				ctx.Response(erro.ErrDelayLimiter, nil)
 				ctx.Abort()
@@ -144,7 +144,7 @@ func ReserveLimiterMiddleware(limiter *limit.Limiter) Middleware {
 		return func(ctx *Ctx) {
 			r := limiter.Reserve()
 			if !r.OK() {
-				log.Logger.Mark("Limiter").Errorln(erro.ErrMsg[erro.ErrReserveLimiter], "Did you remember to set lim.burst to be > 0 ?")
+				log.Zap.Mark("Limiter").Error(log.Message(erro.ErrMsg[erro.ErrReserveLimiter], "Did you remember to set lim.burst to be > 0 ?"))
 
 				ctx.Response(erro.ErrReserveLimiter, nil)
 				ctx.Abort()
@@ -165,7 +165,7 @@ func AuthMiddleware() Middleware {
 				rdClient := baseService.Redis()
 
 				if rdClient == nil {
-					log.Logger.Mark("Author").Errorln(erro.ErrAuthor, erro.ErrMsg[erro.ErrAuthor], err)
+					log.Zap.Mark("Author").Error(log.Message(erro.ErrAuthor, erro.ErrMsg[erro.ErrAuthor], err))
 					ctx.Response(erro.ErrAuthor, nil)
 					ctx.Abort()
 					return
@@ -174,7 +174,7 @@ func AuthMiddleware() Middleware {
 					uid := rdClient.Get(token)
 
 					if uid == "" {
-						log.Logger.Mark("Author").Errorln(erro.ErrAuthor, erro.ErrMsg[erro.ErrAuthor], err)
+						log.Zap.Mark("Author").Error(log.Message(erro.ErrAuthor, erro.ErrMsg[erro.ErrAuthor], err))
 						ctx.Response(erro.ErrAuthor, nil)
 						ctx.Abort()
 						return

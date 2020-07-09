@@ -7,6 +7,8 @@ import (
 
 type Config = viper.Viper
 
+var logger = log.Zap.Mark("Config")
+
 //默认使用当前文件夹下的config.yaml文件
 func init() {
 	viper.AddConfigPath(".")
@@ -47,7 +49,7 @@ func Type(_type string) Option {
 func Provider(provider string, endpoint string, keyOrPath string) Option {
 	return func(v *viper.Viper) {
 		if err := v.AddRemoteProvider(provider, endpoint, keyOrPath); err != nil {
-			log.Logger.Mark("Config").Fatalln(err)
+			logger.Fatal(log.Message(err))
 		}
 	}
 }

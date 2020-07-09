@@ -16,19 +16,22 @@ type Registry struct {
 	*consul.Client
 	Services []*NodeInfo
 	selector selector.Selector
+	logger   *log.ZapLogger
 }
 
 func NewRegistry(addr string, s ...selector.Selector) *Registry {
+	logger := log.Zap.Mark("Registry")
 	config := consul.DefaultConfig()
 	config.Address = addr
 	cli, err := consul.NewClient(config)
 	if err != nil {
-		log.Logger.Mark("Registry").Fatalln(err)
+		logger.Fatal(log.Message(err))
 	}
 
 	r := &Registry{
 		Client:   cli,
 		Services: make([]*NodeInfo, 0),
+		logger:   logger,
 	}
 	if len(s) == 0 {
 		r.selector = selector.RoundRobin()
@@ -87,24 +90,24 @@ func (r *Registry) Register(node *NodeInfo, group *sync.WaitGroup, errChan chan 
 	}
 
 	if err := r.Agent().ServiceRegister(asr); err != nil {
-		log.Logger.Mark("Registry").Fatalln(err)
+		log.Zap.Mark("Registry").Fatal(log.Message(err))
 
 		errChan <- err
 		return
 	}
-	log.Logger.Mark("Registry").Infof(`register service {"id":"%s", "name":"%s"} ok`, node.Id, asr.Name)
+	r.logger.Info(log.Messagef(`register service {"id":"%s", "name":"%s"} ok`, node.Id, asr.Name))
 }
 
 func (r *Registry) Deregister(node *NodeInfo, group *sync.WaitGroup, errChan chan error) {
 	defer group.Done()
 
 	if err := r.Agent().ServiceDeregister(node.Id); err != nil {
-		log.Logger.Mark("Registry").Fatalln(err)
+		r.logger.Fatal(log.Message(err))
 
 		errChan <- err
 		return
 	}
-	log.Logger.Mark("Registry").Infof(`deregister service {"id":"%s", "name":"%s.%s"} ok`, node.Id, node.ServerName, node.Name)
+	r.logger.Info(log.Messagef(`deregister service {"id":"%s", "name":"%s.%s"} ok`, node.Id, node.ServerName, node.Name))
 }
 
 func (r *Registry) GetService(name string) (*NodeInfo, error) {
@@ -128,6 +131,6 @@ func (r *Registry) GetService(name string) (*NodeInfo, error) {
 	}
 	node := nodes[r.selector(len(nodes))]
 
-	log.Logger.Mark("Registry").Infof(`get service {"id":"%s", "name":"%s"} ok`, node.Id, node.Name)
+	r.logger.Info(log.Messagef(`get service {"id":"%s", "name":"%s"} ok`, node.Id, node.Name))
 	return node, nil
 }

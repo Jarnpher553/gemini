@@ -9,7 +9,7 @@ import (
 )
 
 //失效任务实例
-var exp = &Expire{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}}
+var exp = &Expire{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}, logger: log.Zap.Mark("TaskExpire")}
 
 //失效任务
 type Expire struct {
@@ -18,6 +18,7 @@ type Expire struct {
 	m       *sync.Mutex
 	stop    context.Context
 	cancel  context.CancelFunc
+	logger  *log.ZapLogger
 }
 
 //绑定配置并运行
@@ -59,7 +60,7 @@ func Run() {
 				}
 			case <-exp.stop.Done():
 				for k := range exp.handles {
-					log.Logger.Mark("TASK EXPIRE").Infoln(k, "stopped")
+					exp.logger.Info(log.Message(k, "stopped"))
 				}
 				break For
 			default:
