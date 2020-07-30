@@ -18,8 +18,10 @@ func init() {
 	generate()
 }
 
+var conf *Config
+
 func Conf() *Config {
-	return viper.GetViper()
+	return conf
 }
 
 // Option 配置项方法
@@ -52,4 +54,31 @@ func Provider(provider string, endpoint string, keyOrPath string) Option {
 			logger.Fatal(log.Message(err))
 		}
 	}
+}
+
+const (
+	DebugMode   = "debug"
+	ReleaseMode = "release"
+	TestMode    = "test"
+)
+
+func RunMode(osArgs []string) string {
+	var runMode string
+	if len(osArgs) == 1 {
+		runMode = DebugMode
+	} else {
+		switch osArgs[1] {
+		case "debug":
+			runMode = DebugMode
+		case "test":
+			runMode = TestMode
+		case "release":
+			runMode = ReleaseMode
+		default:
+			runMode = DebugMode
+		}
+	}
+	conf = viper.GetViper().Sub(runMode)
+
+	return runMode
 }

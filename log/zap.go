@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"regexp"
 	"runtime"
 	"strings"
@@ -15,7 +16,38 @@ type ZapLogger struct {
 var Zap *ZapLogger
 
 func init() {
-	Producation()
+	new()
+}
+
+func new() {
+	config := zap.Config{
+		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		Development: false,
+		Sampling: &zap.SamplingConfig{
+			Initial:    100,
+			Thereafter: 100,
+		},
+		Encoding:          "json",
+		DisableStacktrace: true,
+		EncoderConfig: zapcore.EncoderConfig{
+			MessageKey:     "msg",
+			LevelKey:       "level",
+			TimeKey:        "time",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
+		OutputPaths:      []string{"stderr"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+
+	logger, _ := config.Build()
+	Zap = &ZapLogger{Logger: logger}
 }
 
 func Producation() {
@@ -33,7 +65,7 @@ func Development() {
 }
 
 func (l *ZapLogger) Mark(key string) *ZapLogger {
-	return &ZapLogger{l.Logger.With(zap.String("source", key))}
+	return &ZapLogger{l.Logger.With(zap.String("@package", strings.ToLower(key)))}
 }
 
 func (l *ZapLogger) Caller(skip int) *ZapLogger {
@@ -51,11 +83,11 @@ func (l *ZapLogger) Caller(skip int) *ZapLogger {
 			continue
 		}
 		if strings.Contains(callerSplit[i], "/") {
-			fields = append(fields, zap.String("source", strings.Title(strings.Split(callerSplit[i], "/")[1])))
+			fields = append(fields, zap.String("@package", strings.ToLower(strings.Split(callerSplit[i], "/")[1])))
 		} else if strings.Contains(callerSplit[i], "*") {
-			fields = append(fields, zap.String("module", strings.Trim(callerSplit[i], "()*")))
+			fields = append(fields, zap.String("@class", strings.ToLower(strings.Trim(callerSplit[i], "()*"))))
 		} else {
-			fields = append(fields, zap.String("method", callerSplit[i]))
+			fields = append(fields, zap.String("@method", strings.ToLower(callerSplit[i])))
 		}
 	}
 

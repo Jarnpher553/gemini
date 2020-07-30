@@ -130,6 +130,16 @@ func (repo *Repository) ReadAll(out interface{}, where ...interface{}) (e error)
 	return repo.DB.Find(out, where...).Error
 }
 
+func (repo *Repository) ReadAllWithOrderBy(out interface{}, orderby interface{}, where ...interface{}) (e error) {
+	defer func() {
+		if err := recover(); err != nil {
+			e = fmt.Errorf("%v", err)
+		}
+	}()
+
+	return repo.DB.Order(orderby).Find(out, where...).Error
+}
+
 // Read 查询单条记录
 func (repo *Repository) Read(out interface{}, where ...interface{}) (e error) {
 	defer func() {
@@ -139,6 +149,17 @@ func (repo *Repository) Read(out interface{}, where ...interface{}) (e error) {
 	}()
 
 	return repo.DB.First(out, where...).Error
+}
+
+// Read 查询单条记录
+func (repo *Repository) ReadWithOrderBy(out interface{}, orderby interface{}, where ...interface{}) (e error) {
+	defer func() {
+		if err := recover(); err != nil {
+			e = fmt.Errorf("%v", err)
+		}
+	}()
+
+	return repo.DB.Order(orderby).First(out, where...).Error
 }
 
 func (repo *Repository) Exist(out interface{}, where ...interface{}) (e error) {
@@ -165,6 +186,17 @@ func (repo *Repository) Remove(val interface{}, where ...interface{}) (e error) 
 		}
 	}()
 	return repo.DB.Delete(val, where...).Error
+}
+
+// Remove 获取影响行数
+func (repo *Repository) RemoveWithAffect(val interface{}, where ...interface{}) (affects int64, e error) {
+	defer func() {
+		if err := recover(); err != nil {
+			e = fmt.Errorf("%v", err)
+		}
+	}()
+	ret := repo.DB.Delete(val, where...)
+	return ret.RowsAffected, ret.Error
 }
 
 // Insert 新增

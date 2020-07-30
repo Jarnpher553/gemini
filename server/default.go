@@ -60,6 +60,7 @@ func Name(name string) Option {
 func RunMode(mode string) Option {
 	return func(server *DefaultServer) {
 		server.runMode = mode
+		server.logger.Info(log.Messagef("server running as %s mode", server.runMode))
 		gin.SetMode(server.runMode)
 	}
 }

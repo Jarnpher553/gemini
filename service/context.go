@@ -44,19 +44,35 @@ func (c *Ctx) Success(data interface{}) {
 	c.response(erro.ErrSuccess, data)
 }
 
-func (c *Ctx) Failure(code int, err error) {
+func (c *Ctx) Failure(code int, err error, actual ...bool) {
 	log.Zap.Caller(2).Error(log.Message(code, erro.ErrMsg[code], err))
-	c.response(code, nil)
+
+	if len(actual) != 0 && actual[0] {
+		c.response(code, nil, err.Error())
+	} else {
+		c.response(code, nil)
+	}
 }
 
-func (c *Ctx) Response(code int, data interface{}) {
+func (c *Ctx) Response(code int, data interface{}, msg ...string) {
+	dataStr := fmt.Sprintf("%v", data)
+	if len(dataStr) > 255 {
+		dataStr = dataStr[:255]
+	}
+
+	log.Zap.Caller(2).Error(log.Message(code, erro.ErrMsg[code]))
+
 	c.response(code, data)
 }
 
-func (c *Ctx) response(code int, data interface{}) {
+func (c *Ctx) response(code int, data interface{}, err ...string) {
+	var e = erro.ErrMsg[code]
+	if len(err) != 0 && err[0] != "" {
+		e = err[0]
+	}
 	c.JSON(http.StatusOK, &dto.Response{
 		ErrCode:   code,
-		ErrMsg:    erro.ErrMsg[code],
+		ErrMsg:    e,
 		Timestamp: now.New().Unix(),
 		Data:      data,
 	})

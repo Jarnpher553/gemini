@@ -84,7 +84,7 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 				defer func() {
 					if err := recover(); err != nil {
 						action := strings.Split(ctx.Request.URL.Path, "/")
-						e = fmt.Errorf("%v service %s action %s", err, srv.Node().ServerName, action[2]+"."+action[3])
+						e = fmt.Errorf("%v service %s action %s", err, srv.Node().ServerName, action[3]+"."+action[4])
 					}
 				}()
 				ctx.Next()
