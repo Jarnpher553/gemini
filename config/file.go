@@ -6,13 +6,15 @@ import (
 )
 
 // File 构造函数
-func File(options ...Option) {
-	v := viper.GetViper()
-	for i := range options {
-		options[i](v)
-	}
+func File(options ...Option) func() {
+	return func() {
+		v := viper.GetViper()
+		for i := range options {
+			options[i](v)
+		}
 
-	generate()
+		generate()
+	}
 }
 
 // generate 配置生成

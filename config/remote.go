@@ -6,14 +6,16 @@ import (
 )
 import _ "github.com/Jarnpher553/viper/remote"
 
-func Remote(opts ...Option) {
-	v := viper.GetViper()
+func Remote(opts ...Option) func() {
+	return func() {
+		v := viper.GetViper()
 
-	for _, opt := range opts {
-		opt(v)
+		for _, opt := range opts {
+			opt(v)
+		}
+
+		generateRemote()
 	}
-
-	generateRemote()
 }
 
 // generate 配置生成

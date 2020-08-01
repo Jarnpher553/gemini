@@ -10,13 +10,13 @@ type Config = viper.Viper
 var logger = log.Zap.Mark("Config")
 
 //默认使用当前文件夹下的config.yaml文件
-func init() {
-	viper.AddConfigPath(".")
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-
-	generate()
-}
+//func init() {
+//	viper.AddConfigPath(".")
+//	viper.SetConfigName("config")
+//	viper.SetConfigType("yaml")
+//
+//	generate()
+//}
 
 var conf *Config
 
@@ -62,7 +62,7 @@ const (
 	TestMode    = "test"
 )
 
-func RunMode(osArgs []string) string {
+func RunMode(osArgs []string, factories ...func()) string {
 	var runMode string
 	if len(osArgs) == 1 {
 		runMode = DebugMode
@@ -78,6 +78,10 @@ func RunMode(osArgs []string) string {
 			runMode = DebugMode
 		}
 	}
+	if factories != nil && len(factories) != 0 {
+		factories[0]()
+	}
+
 	conf = viper.GetViper().Sub(runMode)
 
 	return runMode
