@@ -56,33 +56,15 @@ func Provider(provider string, endpoint string, keyOrPath string) Option {
 	}
 }
 
-const (
-	DebugMode   = "debug"
-	ReleaseMode = "release"
-	TestMode    = "test"
-)
-
-func RunMode(osArgs []string, factories ...func()) string {
-	var runMode string
-	if len(osArgs) == 1 {
-		runMode = DebugMode
-	} else {
-		switch osArgs[1] {
-		case "debug":
-			runMode = DebugMode
-		case "test":
-			runMode = TestMode
-		case "release":
-			runMode = ReleaseMode
-		default:
-			runMode = DebugMode
-		}
-	}
+func DeployEnv(osArgs []string, factories ...func()) {
 	if factories != nil && len(factories) != 0 {
 		factories[0]()
 	}
 
-	conf = viper.GetViper().Sub(runMode)
-
-	return runMode
+	keys := viper.GetViper().AllKeys()
+	if len(osArgs) == 2 {
+		conf = viper.GetViper().Sub(osArgs[1])
+	} else {
+		conf = viper.GetViper().Sub(keys[0])
+	}
 }
