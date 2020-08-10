@@ -27,6 +27,8 @@ func Conf() *Config {
 // Option 配置项方法
 type Option func(*viper.Viper)
 
+type Factory func()
+
 // Path 路径配置
 func Path(path string) Option {
 	return func(v *viper.Viper) {
@@ -56,15 +58,18 @@ func Provider(provider string, endpoint string, keyOrPath string) Option {
 	}
 }
 
-func DeployEnv(osArgs []string, factories ...func()) {
+func DeployEnv(osArgs []string, factories ...Factory) {
 	if factories != nil && len(factories) != 0 {
 		factories[0]()
 	}
 
-	keys := viper.GetViper().AllKeys()
 	if len(osArgs) == 2 {
 		conf = viper.GetViper().Sub(osArgs[1])
 	} else {
-		conf = viper.GetViper().Sub(keys[0])
+		conf = viper.GetViper().Sub("dev")
+	}
+
+	if conf == nil {
+		logger.Fatal("the config of deploy env is nil")
 	}
 }

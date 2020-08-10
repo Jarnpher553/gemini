@@ -6,7 +6,7 @@ import (
 )
 
 // File 构造函数
-func File(options ...Option) func() {
+func File(options ...Option) Factory {
 	return func() {
 		v := viper.GetViper()
 		for i := range options {

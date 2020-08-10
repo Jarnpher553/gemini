@@ -6,7 +6,7 @@ import (
 )
 import _ "github.com/Jarnpher553/viper/remote"
 
-func Remote(opts ...Option) func() {
+func Remote(opts ...Option) Factory {
 	return func() {
 		v := viper.GetViper()
 
