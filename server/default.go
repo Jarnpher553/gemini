@@ -106,7 +106,7 @@ func (s *DefaultServer) Run() {
 	}
 
 	go func() {
-		s.logger.Info(log.Messagef("server running in %s env as %s mode", s.runMode))
+		s.logger.Info(log.Messagef("server running in %s env as %s mode", s.env, s.runMode))
 		s.logger.Info(log.Messagef("server listening on %s...", s.Server.Addr))
 
 		if err := s.ListenAndServe(); err != nil {
