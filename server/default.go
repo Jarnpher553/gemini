@@ -23,6 +23,7 @@ type DefaultServer struct {
 	*service.Registry
 	name    string
 	runMode string
+	env     string
 	logger  *log.ZapLogger
 }
 
@@ -64,6 +65,12 @@ func RunMode(mode string) Option {
 	}
 }
 
+func Env(env string) Option {
+	return func(server *DefaultServer) {
+		server.env = env
+	}
+}
+
 // Default 构造函数
 func Default(options ...Option) IBaseServer {
 	server := &DefaultServer{
@@ -99,7 +106,7 @@ func (s *DefaultServer) Run() {
 	}
 
 	go func() {
-		s.logger.Info(log.Messagef("server running as %s mode", s.runMode))
+		s.logger.Info(log.Messagef("server running in %s env as %s mode", s.runMode))
 		s.logger.Info(log.Messagef("server listening on %s...", s.Server.Addr))
 
 		if err := s.ListenAndServe(); err != nil {

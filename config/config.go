@@ -58,7 +58,7 @@ func Provider(provider string, endpoint string, keyOrPath string) Option {
 	}
 }
 
-func DeployEnv(osArgs []string, factories ...Factory) {
+func DeployEnv(osArgs []string, factories ...Factory) (env string) {
 	if factories != nil && len(factories) != 0 {
 		factories[0]()
 	} else {
@@ -66,12 +66,14 @@ func DeployEnv(osArgs []string, factories ...Factory) {
 	}
 
 	if len(osArgs) == 2 {
-		conf = viper.GetViper().Sub(osArgs[1])
+		env = osArgs[1]
 	} else {
-		conf = viper.GetViper().Sub("dev")
+		env = "dev"
 	}
+	conf = viper.GetViper().Sub(env)
 
 	if conf == nil {
 		logger.Fatal("the config of deploy env is nil")
 	}
+	return
 }
