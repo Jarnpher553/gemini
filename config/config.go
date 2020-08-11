@@ -58,10 +58,8 @@ func Provider(provider string, endpoint string, keyOrPath string) Option {
 	}
 }
 
-func DeployEnv(osArgs []string, factories ...Factory) {
-	if factories != nil && len(factories) != 0 {
-		factories[0]()
-	}
+func DeployEnv(osArgs []string, factory Factory) {
+	factory()
 
 	if len(osArgs) == 2 {
 		conf = viper.GetViper().Sub(osArgs[1])
