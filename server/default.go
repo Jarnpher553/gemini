@@ -60,7 +60,6 @@ func Name(name string) Option {
 func RunMode(mode string) Option {
 	return func(server *DefaultServer) {
 		server.runMode = mode
-		server.logger.Info(log.Messagef("server running as %s mode", server.runMode))
 		gin.SetMode(server.runMode)
 	}
 }
@@ -100,6 +99,7 @@ func (s *DefaultServer) Run() {
 	}
 
 	go func() {
+		s.logger.Info(log.Messagef("server running as %s mode", s.runMode))
 		s.logger.Info(log.Messagef("server listening on %s...", s.Server.Addr))
 
 		if err := s.ListenAndServe(); err != nil {
