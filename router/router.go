@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Jarnpher553/micro-core/log"
-	"github.com/Jarnpher553/micro-core/service"
-	_ "github.com/Jarnpher553/micro-core/validator"
+	"github.com/Jarnpher553/gemini/log"
+	"github.com/Jarnpher553/gemini/service"
+	_ "github.com/Jarnpher553/gemini/validator"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

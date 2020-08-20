@@ -3,7 +3,7 @@ package httpclient
 import (
 	"context"
 	"encoding/json"
-	"github.com/Jarnpher553/micro-core/tracing"
+	"github.com/Jarnpher553/gemini/tracing"
 	"gopkg.in/resty.v1"
 	"net/http"
 )

@@ -2,8 +2,8 @@ package delay
 
 import (
 	"context"
-	"github.com/Jarnpher553/micro-core/log"
-	"github.com/Jarnpher553/micro-core/task"
+	"github.com/Jarnpher553/gemini/log"
+	"github.com/Jarnpher553/gemini/task"
 	"github.com/go-redis/redis"
 	"sync"
 	"time"

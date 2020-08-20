@@ -1,8 +1,8 @@
 package delay
 
 import (
-	"github.com/Jarnpher553/micro-core/redis"
-	"github.com/Jarnpher553/micro-core/task"
+	"github.com/Jarnpher553/gemini/redis"
+	"github.com/Jarnpher553/gemini/task"
 	REDIS "github.com/go-redis/redis"
 	"testing"
 	"time"

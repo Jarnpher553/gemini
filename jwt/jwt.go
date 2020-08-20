@@ -3,7 +3,7 @@ package jwt
 import (
 	"errors"
 	"fmt"
-	guid "github.com/Jarnpher553/micro-core/uuid"
+	guid "github.com/Jarnpher553/gemini/uuid"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/satori/go.uuid"
 	"time"

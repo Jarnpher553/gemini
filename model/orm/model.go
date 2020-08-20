@@ -1,7 +1,7 @@
 package orm
 
 import (
-	"github.com/Jarnpher553/micro-core/uuid"
+	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/jinzhu/gorm"
 	"time"
 )

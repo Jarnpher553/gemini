@@ -1,4 +1,4 @@
-module github.com/Jarnpher553/micro-core
+module github.com/Jarnpher553/gemini
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1

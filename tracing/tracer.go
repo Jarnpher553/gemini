@@ -2,7 +2,7 @@ package tracing
 
 import (
 	"context"
-	"github.com/Jarnpher553/micro-core/log"
+	"github.com/Jarnpher553/gemini/log"
 	"github.com/opentracing/opentracing-go"
 	zipkinAdapter "github.com/openzipkin-contrib/zipkin-go-opentracing"
 	"github.com/openzipkin/zipkin-go"

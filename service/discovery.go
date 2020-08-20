@@ -2,12 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/Jarnpher553/micro-core/service/selector"
+	"github.com/Jarnpher553/gemini/service/selector"
 	"strconv"
 	"sync"
 	"time"
 
-	"github.com/Jarnpher553/micro-core/log"
+	"github.com/Jarnpher553/gemini/log"
 	consul "github.com/hashicorp/consul/api"
 )
 

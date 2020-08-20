@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/Jarnpher553/micro-core/uuid"
+	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sony/gobreaker"
@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jarnpher553/micro-core/breaker"
-	"github.com/Jarnpher553/micro-core/erro"
-	"github.com/Jarnpher553/micro-core/jwt"
-	"github.com/Jarnpher553/micro-core/limit"
-	"github.com/Jarnpher553/micro-core/log"
-	"github.com/Jarnpher553/micro-core/metric"
-	"github.com/Jarnpher553/micro-core/tracing"
+	"github.com/Jarnpher553/gemini/breaker"
+	"github.com/Jarnpher553/gemini/erro"
+	"github.com/Jarnpher553/gemini/jwt"
+	"github.com/Jarnpher553/gemini/limit"
+	"github.com/Jarnpher553/gemini/log"
+	"github.com/Jarnpher553/gemini/metric"
+	"github.com/Jarnpher553/gemini/tracing"
 )
 
 // Middleware 中间件

@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/Jarnpher553/micro-core/util/addr"
+	"github.com/Jarnpher553/gemini/util/addr"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Jarnpher553/micro-core/log"
-	"github.com/Jarnpher553/micro-core/router"
-	"github.com/Jarnpher553/micro-core/service"
+	"github.com/Jarnpher553/gemini/log"
+	"github.com/Jarnpher553/gemini/router"
+	"github.com/Jarnpher553/gemini/service"
 	"github.com/gin-gonic/gin"
 )
 

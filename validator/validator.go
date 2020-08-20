@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/Jarnpher553/micro-core/json"
+	"github.com/Jarnpher553/gemini/json"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v9"
 	"reflect"

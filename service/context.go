@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/Jarnpher553/micro-core/erro"
-	"github.com/Jarnpher553/micro-core/log"
-	"github.com/Jarnpher553/micro-core/model/dto"
-	"github.com/Jarnpher553/micro-core/now"
-	"github.com/Jarnpher553/micro-core/uuid"
+	"github.com/Jarnpher553/gemini/erro"
+	"github.com/Jarnpher553/gemini/log"
+	"github.com/Jarnpher553/gemini/model/dto"
+	"github.com/Jarnpher553/gemini/now"
+	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

@@ -1,7 +1,7 @@
 package breaker
 
 import (
-	"github.com/Jarnpher553/micro-core/log"
+	"github.com/Jarnpher553/gemini/log"
 	"github.com/sony/gobreaker"
 	"time"
 )

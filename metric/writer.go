@@ -2,7 +2,7 @@ package metric
 
 import (
 	"fmt"
-	"github.com/Jarnpher553/micro-core/log"
+	"github.com/Jarnpher553/gemini/log"
 	"github.com/rcrowley/go-metrics"
 	"time"
 )
