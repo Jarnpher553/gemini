@@ -12,21 +12,22 @@ GEMINI is a microservice framework
 package main
 
 import (
-	_ "demo/schedule"
-	_ "demo/task"
-
+    _ "demo/schedule"
+    _ "demo/task"
+    
+    
+    "os"
     "demo/services"
-	"os"
 
-	"github.com/Jarnpher553/gemini/config"
-	"github.com/Jarnpher553/gemini/redis"
-	"github.com/Jarnpher553/gemini/repo"
-	"github.com/Jarnpher553/gemini/router"
-	"github.com/Jarnpher553/gemini/scheduler"
-	"github.com/Jarnpher553/gemini/server"
-	"github.com/Jarnpher553/gemini/service"
-	"github.com/Jarnpher553/gemini/task"
-	"github.com/Jarnpher553/gemini/task/delay"
+    "github.com/Jarnpher553/gemini/config"
+    "github.com/Jarnpher553/gemini/redis"
+    "github.com/Jarnpher553/gemini/repo"
+    "github.com/Jarnpher553/gemini/router"
+    "github.com/Jarnpher553/gemini/scheduler"
+    "github.com/Jarnpher553/gemini/server"
+    "github.com/Jarnpher553/gemini/service"
+    "github.com/Jarnpher553/gemini/task"
+    "github.com/Jarnpher553/gemini/task/delay"
 )
 
 func main() {
