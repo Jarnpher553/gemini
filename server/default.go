@@ -111,8 +111,6 @@ func (s *DefaultServer) printBanner() {
  Welcome to gemini, starting application ...
 `
 	fmt.Println(fmt.Sprintf("\x1b[32m%s\x1b[0m", banner))
-
-	return nil
 }
 
 // Run 实现IBaseServer接口
