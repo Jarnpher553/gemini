@@ -94,10 +94,11 @@ func Default(options ...Option) IBaseServer {
 		r.RootGroup(server.name)
 	}
 
+	server.printBanner()
 	return server
 }
 
-func (s *DefaultServer) printBanner() error {
+func (s *DefaultServer) printBanner() {
 	const banner = `
       _____     
     /  ___  \    ________    _________    __    _____    __
