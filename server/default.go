@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/Jarnpher553/micro-core/util/addr"
 	"net/http"
 	"os"
@@ -94,6 +95,23 @@ func Default(options ...Option) IBaseServer {
 	}
 
 	return server
+}
+
+func (s *DefaultServer) printBanner() error {
+	const banner = `
+      _____     
+    /  ___  \    ________    _________    __    _____    __
+   | |____|  |  |  ____  |  |  _   _  |  |__|  |  _  |  |__|
+    \_____   |  | |____| |  | | | | | |   __   | | | |   __
+    _____/   |  |  ______|  |_| |_| |_|  |  |  |_| |_|  |  |
+   \ ______ /   | |_____                 |__|           |__|
+                |________\
+
+ Welcome to gemini, starting application ...
+`
+	fmt.Println(fmt.Sprintf("\x1b[32m%s\x1b[0m", banner))
+
+	return nil
 }
 
 // Run 实现IBaseServer接口

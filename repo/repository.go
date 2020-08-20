@@ -443,6 +443,11 @@ func (repo *Repository) Query(out interface{}, count bool, exps ...Expression) (
 	return
 }
 
+func Expr(expression string, args ...interface{}) interface{} {
+	expr := gorm.Expr(expression, args...)
+	return expr
+}
+
 func (repo *Repository) Print(args ...interface{}) {
 	formatter := gorm.LogFormatter(args...)
 	repo.Logger.Info(log.Message(formatter[2], formatter[3], strings.Replace(formatter[4].(string), "\n", "", -1)))
