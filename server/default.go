@@ -90,11 +90,12 @@ func Default(options ...Option) IBaseServer {
 
 	r, ok := server.Handler.(*router.Router)
 	if ok {
+		server.printBanner()
+
 		r.Engine = gin.Default()
 		r.RootGroup(server.name)
 	}
 
-	server.printBanner()
 	return server
 }
 
@@ -108,7 +109,7 @@ func (s *DefaultServer) printBanner() {
    \ ______ /   | |_____                 |__|           |__|
                 |________\
 
- Welcome to gemini, starting application ...
+    Welcome to gemini, starting application ...
 `
 	fmt.Println(fmt.Sprintf("\x1b[32m%s\x1b[0m", banner))
 }
