@@ -1,4 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Jarnpher553/gemini)](https://goreportcard.com/report/github.com/Jarnpher553/gemini)
+![GitHub](https://img.shields.io/badge/license-MIT-brightgreen)
 
 # gemini
 
