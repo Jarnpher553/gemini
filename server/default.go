@@ -91,9 +91,7 @@ func Default(options ...Option) IBaseServer {
 	r, ok := server.Handler.(*router.Router)
 	if ok {
 		server.printBanner()
-
-		r.Engine = gin.Default()
-		r.RootGroup(server.name)
+		r.Startup(server.name)
 	}
 
 	return server
@@ -117,11 +115,6 @@ func (s *DefaultServer) printBanner() {
 // Run 实现IBaseServer接口
 func (s *DefaultServer) Run() {
 	defer log.Zap.Sync()
-
-	r := s.Server.Handler.(*router.Router)
-	for _, s := range r.Services {
-		r.Register(s)
-	}
 
 	go func() {
 		s.logger.Info(log.Messagef("server running in %s env as %s mode", s.env, s.runMode))

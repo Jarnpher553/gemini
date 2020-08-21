@@ -22,7 +22,7 @@ type Router struct {
 	sync.Once
 	sync.Mutex
 	*gin.Engine
-	Services []service.IBaseService
+	services []service.IBaseService
 	static   string
 	template string
 }
@@ -58,9 +58,16 @@ func StaticFs(path string) Option {
 	}
 }
 
-func (r *Router) RootGroup(group string) {
-	for i := range r.Services {
-		r.Services[i].Node().ServerName = group
+func (r *Router) Startup(serverName string) {
+	r.rootGroup(serverName)
+	r.register()
+}
+
+func (r *Router) rootGroup(group string) {
+	r.Engine = gin.Default()
+
+	for i := range r.services {
+		r.services[i].Node().ServerName = group
 	}
 
 	groupList := strings.Split(group, ".")
@@ -73,11 +80,11 @@ func (r *Router) RootGroup(group string) {
 	r.RouterGroup = *(routerGroup)
 
 	//挂载跨域
-	r.Cors()
+	r.cors()
 
 	//注册静态文件路径
 	if r.static != "" {
-		r.RegisterStatic(r.static)
+		r.registerStatic(r.static)
 	}
 
 	if r.template != "" {
@@ -85,12 +92,12 @@ func (r *Router) RootGroup(group string) {
 	}
 }
 
-func (r *Router) RegisterStatic(path string) {
+func (r *Router) registerStatic(path string) {
 	_ = os.MkdirAll(path, os.ModePerm)
 	r.Static("/static", path)
 }
 
-func (r *Router) Cors() {
+func (r *Router) cors() {
 	r.Use(cors.New(cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "access-token"},
@@ -101,20 +108,20 @@ func (r *Router) Cors() {
 	}))
 }
 
-func (r *Router) InjectSlice(services ...service.IBaseService) {
-	for _, v := range services {
-		r.Inject(v)
+func (r *Router) Assign(service ...service.IBaseService) {
+	r.Lock()
+	defer r.Unlock()
+	r.services = append(r.services, service...)
+}
+
+func (r *Router) register() {
+	for _, s := range r.services {
+		r.doRegister(s)
 	}
 }
 
-func (r *Router) Inject(service service.IBaseService) {
-	r.Lock()
-	defer r.Unlock()
-	r.Services = append(r.Services, service)
-}
-
 // Register 自定义注册
-func (r *Router) Register(srv service.IBaseService) {
+func (r *Router) doRegister(srv service.IBaseService) {
 	serviceType := reflect.TypeOf(srv)
 
 	serviceVal := reflect.ValueOf(srv)
