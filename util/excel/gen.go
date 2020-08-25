@@ -35,10 +35,10 @@ func Gen(entities interface{}) (*bytes.Buffer, error) {
 	f.SetCellStyle("Sheet1", "A1", endCol, styleID)
 	for i := 0; i < vEn.Len(); i++ {
 		var row []interface{}
-		for i := 0; i < t.NumField(); i++ {
+		for j := 0; j < t.NumField(); j++ {
 			tagValue := t.Field(i).Tag.Get("excel")
 			if tagValue != "" {
-				row = append(row, v.Field(i).Interface())
+				row = append(row, v.Field(j).Interface())
 			}
 		}
 		f.SetSheetRow("Sheet1", "A"+strconv.Itoa(i+2), &row)
