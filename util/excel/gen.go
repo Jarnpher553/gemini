@@ -36,7 +36,7 @@ func Gen(entities interface{}) (*bytes.Buffer, error) {
 	for i := 0; i < vEn.Len(); i++ {
 		var row []interface{}
 		for j := 0; j < t.NumField(); j++ {
-			tagValue := t.Field(i).Tag.Get("excel")
+			tagValue := t.Field(j).Tag.Get("excel")
 			if tagValue != "" {
 				row = append(row, v.Field(j).Interface())
 			}
