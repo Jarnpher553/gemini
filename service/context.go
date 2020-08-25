@@ -35,6 +35,11 @@ func (c *Ctx) Pdf(data []byte, filename string) {
 	c.Data(http.StatusOK, "application/pdf", data)
 }
 
+func (c *Ctx) FileStream(data []byte, filename string) {
+	c.Header("Content-Disposition", "attachment; filename="+filename)
+	c.Data(http.StatusOK, "application/octet-stream", data)
+}
+
 func (c *Ctx) Success(data interface{}) {
 	dataStr := fmt.Sprintf("%v", data)
 	if len(dataStr) > 255 {
