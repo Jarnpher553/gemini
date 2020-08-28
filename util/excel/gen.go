@@ -3,12 +3,13 @@ package excel
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"reflect"
 	"strconv"
 )
 
-func Gen(entities interface{}) (*bytes.Buffer, error) {
+func Gen(entities interface{}, titleColor string) (*bytes.Buffer, error) {
 	tEn := reflect.TypeOf(entities)
 	if tEn.Kind() != reflect.Slice {
 		return nil, errors.New("input params type error")
@@ -29,7 +30,7 @@ func Gen(entities interface{}) (*bytes.Buffer, error) {
 	}
 
 	f.SetSheetRow("Sheet1", "A1", &title)
-	styleID, _ := f.NewStyle(`{"font":{"bold":true},"fill":{"type":"pattern","color":["#E0EBF5"],"pattern":1}}`)
+	styleID, _ := f.NewStyle(fmt.Sprintf(`{"font":{"bold":true},"fill":{"type":"pattern","color":["%s"],"pattern":1}}`, titleColor))
 	endCol := string(65+count-1) + "1"
 	f.SetCellStyle("Sheet1", "A1", endCol, styleID)
 	for i := 0; i < vEn.Len(); i++ {
