@@ -448,6 +448,15 @@ func Expr(expression string, args ...interface{}) interface{} {
 	return expr
 }
 
+func Escape(input string) string {
+	output := strings.Replace(input, `\`, `\\`, -1)
+	output = strings.Replace(output, `%`, `\%`, -1)
+	output = strings.Replace(output, `'`, `\'`, -1)
+	output = strings.Replace(output, `_`, `\_`, -1)
+	output = strings.Replace(output, `"`, `\"`, -1)
+	return output
+}
+
 func (repo *Repository) Print(args ...interface{}) {
 	formatter := gorm.LogFormatter(args...)
 	repo.Logger.Info(log.Message(formatter[2], formatter[3], strings.Replace(formatter[4].(string), "\n", "", -1)))
