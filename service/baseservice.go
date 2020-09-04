@@ -47,8 +47,11 @@ type IBaseService interface {
 	SetNode(*NodeInfo)
 	Reg() *Registry
 	SetReg(*Registry)
-	Option() *Options
-	SetOption(*Options)
+	Interceptor() *Interceptor
+	SetInterceptor(*Interceptor)
+
+	CustomContext(string) interface{}
+	SetCustomContext(map[string]interface{})
 }
 
 type BaseService struct {
@@ -59,10 +62,12 @@ type BaseService struct {
 	node        *NodeInfo
 	reg         *Registry
 
-	option *Options
+	interceptor *Interceptor
+
+	customContext map[string]interface{}
 }
 
-type Options struct {
+type Interceptor struct {
 	Metric  *metric.Metric
 	Tracer  *tracing.Tracer
 	Limiter *limit.Limiter
@@ -99,25 +104,31 @@ func MongoClient(client *mongo.MgoClient) Option {
 
 func Tracer(tracer *tracing.Tracer) Option {
 	return func(service IBaseService) {
-		service.Option().Tracer = tracer
+		service.Interceptor().Tracer = tracer
 	}
 }
 
 func Metric(m *metric.Metric) Option {
 	return func(service IBaseService) {
-		service.Option().Metric = m
+		service.Interceptor().Metric = m
 	}
 }
 
 func Limiter(limiter *limit.Limiter) Option {
 	return func(service IBaseService) {
-		service.Option().Limiter = limiter
+		service.Interceptor().Limiter = limiter
 	}
 }
 
 func Cb(circuitBreaker *breaker.CircuitBreaker) Option {
 	return func(service IBaseService) {
-		service.Option().Cb = circuitBreaker
+		service.Interceptor().Cb = circuitBreaker
+	}
+}
+
+func CustomContext(context map[string]interface{}) Option {
+	return func(service IBaseService) {
+		service.SetCustomContext(context)
 	}
 }
 
@@ -132,28 +143,28 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 			Id:   uuid.NewV4().String(),
 			Name: name,
 		},
-		option: &Options{},
+		interceptor: &Interceptor{},
 	}
 
 	for _, op := range option {
 		op(bs)
 	}
 
-	if bs.option.Tracer == nil {
-		bs.option.Tracer = tracing.New(tracing.NewZapReporter())
+	if bs.interceptor.Tracer == nil {
+		bs.interceptor.Tracer = tracing.New(tracing.NewZapReporter())
 	}
 
-	if bs.option.Limiter == nil {
-		bs.option.Limiter = limit.New(rate.Limit(200*runtime.NumCPU()), 200*runtime.NumCPU())
+	if bs.interceptor.Limiter == nil {
+		bs.interceptor.Limiter = limit.New(rate.Limit(200*runtime.NumCPU()), 200*runtime.NumCPU())
 	}
 
-	if bs.option.Metric == nil {
-		bs.option.Metric = metric.New(metric.NewWriter(1 * time.Minute))
+	if bs.interceptor.Metric == nil {
+		bs.interceptor.Metric = metric.New(metric.NewWriter(1 * time.Minute))
 
 	}
 
-	if bs.option.Cb == nil {
-		bs.option.Cb = breaker.New()
+	if bs.interceptor.Cb == nil {
+		bs.interceptor.Cb = breaker.New()
 	}
 
 	v.Elem().FieldByName("BaseService").Set(reflect.ValueOf(bs))
@@ -188,7 +199,7 @@ func (s *BaseService) SetClient(client *httpclient.ReqClient) {
 func (s *BaseService) Client() *httpclient.ReqClient {
 	if s.client == nil {
 		node := s.Node()
-		s.client = httpclient.New(httpclient.Tracer(s.Option().Tracer), httpclient.Name(node.ServerName+"."+node.Name))
+		s.client = httpclient.New(httpclient.Tracer(s.Interceptor().Tracer), httpclient.Name(node.ServerName+"."+node.Name))
 	}
 	return s.client
 }
@@ -217,12 +228,20 @@ func (s *BaseService) SetRepo(repository *repo.Repository) {
 	s.repository = repository
 }
 
-func (s *BaseService) Option() *Options {
-	return s.option
+func (s *BaseService) Interceptor() *Interceptor {
+	return s.interceptor
 }
 
-func (s *BaseService) SetOption(op *Options) {
-	s.option = op
+func (s *BaseService) SetInterceptor(op *Interceptor) {
+	s.interceptor = op
+}
+
+func (s *BaseService) CustomContext(key string) interface{} {
+	return s.customContext[key]
+}
+
+func (s *BaseService) SetCustomContext(context map[string]interface{}) {
+	s.customContext = context
 }
 
 func (s *BaseService) Get(handler *Handler) HandlerFunc {

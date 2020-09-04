@@ -143,11 +143,11 @@ func (r *Router) doRegister(srv service.IBaseService) {
 	group := r.Group(fmt.Sprintf("%s", node.Name))
 
 	//服务注册中间件
-	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Option().Limiter)(srv)))
-	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Option().Cb)(srv)))
-	group.Use(service.Wrapper(service.MetricMiddleware(srv.Option().Metric)(srv)))
+	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Interceptor().Limiter)(srv)))
+	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Interceptor().Cb)(srv)))
+	group.Use(service.Wrapper(service.MetricMiddleware(srv.Interceptor().Metric)(srv)))
 	//group.Use(service.Wrapper(service.ExtractHttpMiddleware()(srv)))
-	group.Use(service.Wrapper(service.TracerMiddleware(srv.Option().Tracer, name)(srv)))
+	group.Use(service.Wrapper(service.TracerMiddleware(srv.Interceptor().Tracer, name)(srv)))
 
 	//注册自定义中间件
 	group.Use(middleware...)
