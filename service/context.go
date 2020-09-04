@@ -10,6 +10,7 @@ import (
 	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type Ctx struct {
@@ -41,11 +42,11 @@ func (c *Ctx) FileStream(data []byte, filename string) {
 }
 
 func (c *Ctx) Success(data interface{}) {
-	dataStr := fmt.Sprintf("%+v", data)
+	dataStr := strings.TrimLeft(fmt.Sprintf("%+v", data), "&")
 	if len(dataStr) > 255 {
-		dataStr = dataStr[:255]
+		dataStr = dataStr[:255] + "..."
 	}
-	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr+"..."))
+	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr))
 	c.response(erro.ErrSuccess, data)
 }
 
@@ -125,12 +126,12 @@ func (c *Ctx) SetUser(user interface{}) {
 func (c *Ctx) Bind(obj interface{}) error {
 	err := c.ShouldBind(obj)
 
-	dataStr := fmt.Sprintf("%+v", obj)
+	dataStr := strings.TrimLeft(fmt.Sprintf("%+v", obj), "&")
 	if len(dataStr) > 255 {
-		dataStr = dataStr[:255]
+		dataStr = dataStr[:255] + "..."
 	}
 
-	log.Zap.Caller(2).Info(dataStr + "...")
+	log.Zap.Caller(2).Info(dataStr)
 
 	return err
 }
