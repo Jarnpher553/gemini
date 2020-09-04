@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/Jarnpher553/gemini/erro"
 	"github.com/Jarnpher553/gemini/log"
@@ -42,12 +41,11 @@ func (c *Ctx) FileStream(data []byte, filename string) {
 }
 
 func (c *Ctx) Success(data interface{}) {
-	msgByte, _ := json.Marshal(data)
-	msg := string(msgByte)
-	if len(msg) > 255 {
-		msg = msg[:255]
+	dataStr := fmt.Sprintf("%#v", data)
+	if len(dataStr) > 255 {
+		dataStr = dataStr[:255]
 	}
-	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], msg+"..."))
+	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr+"..."))
 	c.response(erro.ErrSuccess, data)
 }
 
@@ -61,12 +59,7 @@ func (c *Ctx) Failure(code int, err error, actual ...bool) {
 	}
 }
 
-func (c *Ctx) Response(code int, data interface{}, msg ...string) {
-	dataStr := fmt.Sprintf("%v", data)
-	if len(dataStr) > 255 {
-		dataStr = dataStr[:255]
-	}
-
+func (c *Ctx) Response(code int, data interface{}) {
 	log.Zap.Caller(2).Error(log.Message(code, erro.ErrMsg[code]))
 
 	c.response(code, data)
@@ -127,4 +120,20 @@ func (c *Ctx) SetUser(user interface{}) {
 	var cc context.Context
 	cc = context.WithValue(c.Request.Context(), "auth_user", user)
 	c.Request = c.Request.WithContext(cc)
+}
+
+func (c *Ctx) Bind(obj interface{}) error {
+	err := c.ShouldBind(obj)
+
+	if err != nil {
+		return err
+	}
+
+	dataStr := fmt.Sprintf("%#v", obj)
+	if len(dataStr) > 255 {
+		dataStr = dataStr[:255]
+	}
+
+	log.Zap.Caller(2).Info(dataStr + "...")
+	return err
 }

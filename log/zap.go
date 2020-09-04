@@ -95,7 +95,7 @@ func (l *ZapLogger) Caller(skip int) *ZapLogger {
 }
 
 func Message(messages ...interface{}) string {
-	return fmt.Sprint(messages)
+	return fmt.Sprint(messages...)
 }
 
 func Messagef(format string, a ...interface{}) string {
