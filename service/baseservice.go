@@ -51,7 +51,7 @@ type IBaseService interface {
 	SetInterceptor(*Interceptor)
 
 	CustomContext(string) interface{}
-	SetCustomContext(map[string]interface{})
+	SetCustomContext(string, interface{})
 }
 
 type BaseService struct {
@@ -126,9 +126,9 @@ func Cb(circuitBreaker *breaker.CircuitBreaker) Option {
 	}
 }
 
-func CustomContext(context map[string]interface{}) Option {
+func CustomContext(key string, value interface{}) Option {
 	return func(service IBaseService) {
-		service.SetCustomContext(context)
+		service.SetCustomContext(key, value)
 	}
 }
 
@@ -240,8 +240,11 @@ func (s *BaseService) CustomContext(key string) interface{} {
 	return s.customContext[key]
 }
 
-func (s *BaseService) SetCustomContext(context map[string]interface{}) {
-	s.customContext = context
+func (s *BaseService) SetCustomContext(key string, value interface{}) {
+	if s.customContext == nil {
+		s.customContext = make(map[string]interface{})
+	}
+	s.customContext[key] = value
 }
 
 func (s *BaseService) Get(handler *Handler) HandlerFunc {
