@@ -181,16 +181,21 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 	if customContext != "" {
 		sc, _ := t.Elem().FieldByName(customContext)
 		tc := sc.Type
-		vc := v.Elem().FieldByName(customContext)
 
 		var tcc reflect.Type
-		var vcc reflect.Value
 		if tc.Kind() == reflect.Ptr {
 			tcc = tc.Elem()
-			vcc = vc.Elem()
 		} else {
 			tcc = tc
-			vcc = vc
+		}
+
+		vc := v.Elem().FieldByName(customContext)
+		var vcc reflect.Value
+		vcc = reflect.New(tcc).Elem()
+		if tc.Kind() == reflect.Ptr {
+			vc.Set(vcc.Addr())
+		} else {
+			vc.Set(vcc)
 		}
 
 		for i := 0; i < tcc.NumField(); i++ {
