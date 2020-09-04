@@ -125,15 +125,12 @@ func (c *Ctx) SetUser(user interface{}) {
 func (c *Ctx) Bind(obj interface{}) error {
 	err := c.ShouldBind(obj)
 
-	if err != nil {
-		return err
-	}
-
 	dataStr := fmt.Sprintf("%#v", obj)
 	if len(dataStr) > 255 {
 		dataStr = dataStr[:255]
 	}
 
 	log.Zap.Caller(2).Info(dataStr + "...")
+
 	return err
 }
