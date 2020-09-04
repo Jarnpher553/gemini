@@ -50,6 +50,7 @@ type IBaseService interface {
 	Interceptor() *Interceptor
 	SetInterceptor(*Interceptor)
 
+	CustomContext(string) interface{}
 	SetCustomContext(string, interface{})
 }
 
@@ -168,50 +169,6 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 
 	v.Elem().FieldByName("BaseService").Set(reflect.ValueOf(bs))
 
-	bStructField, _ := t.Elem().FieldByName("BaseService")
-
-	var customContext string
-	_, exist := t.Elem().FieldByName("CustomContext")
-	if exist {
-		customContext = "CustomContext"
-	} else {
-		customContext = bStructField.Tag.Get("cc")
-	}
-
-	if customContext != "" {
-		sc, _ := t.Elem().FieldByName(customContext)
-		tc := sc.Type
-
-		var tcc reflect.Type
-		if tc.Kind() == reflect.Ptr {
-			tcc = tc.Elem()
-		} else {
-			tcc = tc
-		}
-
-		vc := v.Elem().FieldByName(customContext)
-		var vcc reflect.Value
-		vcc = reflect.New(tcc).Elem()
-		if tc.Kind() == reflect.Ptr {
-			vc.Set(vcc.Addr())
-		} else {
-			vc.Set(vcc)
-		}
-
-		for i := 0; i < tcc.NumField(); i++ {
-			value, ok := bs.customContext[tcc.Field(i).Name]
-			if ok {
-				vcc.Field(i).Set(reflect.ValueOf(value))
-				continue
-			}
-			value, ok = bs.customContext[tcc.Field(i).Tag.Get("cname")]
-			if ok {
-				vcc.Field(i).Set(reflect.ValueOf(value))
-				continue
-			}
-		}
-	}
-
 	return service
 }
 
@@ -277,6 +234,10 @@ func (s *BaseService) Interceptor() *Interceptor {
 
 func (s *BaseService) SetInterceptor(op *Interceptor) {
 	s.interceptor = op
+}
+
+func (s *BaseService) CustomContext(key string) interface{} {
+	return s.customContext[key]
 }
 
 func (s *BaseService) SetCustomContext(key string, value interface{}) {
