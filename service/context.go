@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/Jarnpher553/gemini/erro"
 	"github.com/Jarnpher553/gemini/log"
@@ -41,11 +42,12 @@ func (c *Ctx) FileStream(data []byte, filename string) {
 }
 
 func (c *Ctx) Success(data interface{}) {
-	dataStr := fmt.Sprintf("%v", data)
-	if len(dataStr) > 255 {
-		dataStr = dataStr[:255]
+	msgByte, _ := json.Marshal(data)
+	msg := string(msgByte)
+	if len(msg) > 255 {
+		msg = msg[:255]
 	}
-	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], dataStr+"..."))
+	log.Zap.Caller(2).Info(log.Message(erro.ErrSuccess, erro.ErrMsg[erro.ErrSuccess], msg+"..."))
 	c.response(erro.ErrSuccess, data)
 }
 
