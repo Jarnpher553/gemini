@@ -1,6 +1,7 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -95,7 +96,15 @@ func (l *ZapLogger) Caller(skip int) *ZapLogger {
 }
 
 func Message(messages ...interface{}) string {
-	return fmt.Sprint(messages...)
+	buf := bytes.Buffer{}
+	for i := range messages {
+		if i != 0 {
+			buf.WriteString(" | ")
+		}
+		buf.WriteString(fmt.Sprint(messages[i]))
+	}
+
+	return buf.String()
 }
 
 func Messagef(format string, a ...interface{}) string {
