@@ -107,16 +107,28 @@ func recoverMiddleware(slowQueryThresholdInMilli int64) gin.HandlerFunc {
 				return
 			}
 
+			method := c.Request.Method
+			code := c.Writer.Status()
+			size := c.Writer.Size()
+			host := c.Request.Host
+			path := c.Request.URL.Path
+			ip := c.ClientIP()
+			err := c.Errors.ByType(gin.ErrorTypePrivate).String()
+
 			fields = append(fields,
-				zap.String("method", c.Request.Method),
-				zap.Int("code", c.Writer.Status()),
-				zap.Int("size", c.Writer.Size()),
-				zap.String("host", c.Request.Host),
-				zap.String("path", c.Request.URL.Path),
-				zap.String("ip", c.ClientIP()),
-				zap.String("err", c.Errors.ByType(gin.ErrorTypePrivate).String()),
+				zap.String("method", method),
+				zap.Int("code", code),
+				zap.Int("size", size),
+				zap.String("host", host),
+				zap.String("path", path),
+				zap.String("ip", ip),
+				zap.String("err", err),
 			)
-			zapLogger.Info("access", fields...)
+			if c.Writer.Status() == 200 {
+				zapLogger.Info("access", fields...)
+			} else {
+				zapLogger.Error("access", fields...)
+			}
 		}()
 		c.Next()
 	}
