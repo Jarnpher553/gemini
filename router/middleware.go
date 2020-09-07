@@ -79,7 +79,7 @@ func recoverMiddleware(slowQueryThresholdInMilli int64) gin.HandlerFunc {
 		var brokenPipe bool
 		defer func() {
 
-			fields = append(fields, zap.Float64("cost", time.Since(beg).Seconds()))
+			fields = append(fields, zap.String("cost", time.Since(beg).String()))
 			if slowQueryThresholdInMilli > 0 {
 				if cost := int64(time.Since(beg)) / 1e6; cost > slowQueryThresholdInMilli {
 					fields = append(fields, zap.Int64("slow", cost))
