@@ -3,6 +3,7 @@ package repo
 import (
 	"fmt"
 	"github.com/Jarnpher553/gemini/log"
+	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 	"reflect"
@@ -462,10 +463,16 @@ func (repo *Repository) Print(args ...interface{}) {
 	gorm.LogFormatter()
 	formatter := gormLogFormatter(args...)
 	source := strings.Split(formatter[0].(string), "/")
-	repo.Logger.With(zap.String("source", source[len(source)-1])).
-		With(zap.String("cost", formatter[2].(string))).
-		With(zap.String("sql", formatter[3].(string))).
-		Info(formatter[4].(string))
+	l := repo.Logger.With(zap.String("source", source[len(source)-2]))
+	if args[0] == "sql" {
+		l.
+			With(zap.String("cost", formatter[2].(string))).
+			With(zap.String("sql", formatter[3].(string))).
+			Info(formatter[4].(string))
+	} else {
+		l.
+			Error(formatter[2].(mysql.MySQLError).Message)
+	}
 }
 
 func (repo *Repository) Migrate(initial func(*Repository), values ...interface{}) {
