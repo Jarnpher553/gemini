@@ -8,6 +8,7 @@ import (
 	"github.com/Jarnpher553/gemini/now"
 	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -40,46 +41,43 @@ func (c *Ctx) FileStream(data []byte, filename string) {
 }
 
 func (c *Ctx) Success(data interface{}) {
-	c.response(erro.ErrSuccess, data)
+	c.response(erro.ErrSuccess, data, "", false)
 }
 
 func (c *Ctx) Failure(code int, err error, actual ...bool) {
 	if len(actual) != 0 && actual[0] {
-		c.response(code, nil, err.Error())
+		c.response(code, nil, err.Error(), true)
 	} else {
-		c.response(code, nil)
+		c.response(code, nil, err.Error(), false)
 	}
 }
 
-func (c *Ctx) Response(code int, data interface{}) {
-	c.response(code, data)
+func (c *Ctx) Response(code int, data interface{}, err error) {
+	c.response(code, data, err.Error(), false)
 }
 
-func (c *Ctx) response(code int, data interface{}, err ...string) {
-	var e = erro.ErrMsg[code]
-	if len(err) != 0 && err[0] != "" {
-		e = err[0]
+func (c *Ctx) response(code int, data interface{}, err string, actual bool) {
+	var msg = erro.ErrMsg[code]
+	if actual {
+		msg = err
 	}
 
 	response := &dto.Response{
 		ErrCode:   code,
-		ErrMsg:    e,
+		ErrMsg:    msg,
 		Timestamp: now.New().Unix(),
 		Data:      data,
 	}
+	l := log.Zap.Mark("service").
+		With(zap.Int("code", code)).
+		With(zap.String("msg", erro.ErrMsg[code]))
 
-	if code == 200 {
-		log.Zap.Caller(2).Info(log.Message(response.ErrCode, response.ErrMsg, response.Timestamp))
-	} else {
-		log.Zap.Caller(2).Error(log.Message(response.ErrCode, response.ErrMsg, response.Timestamp))
+	if err != "" {
+		l = l.With(zap.String("err", err))
 	}
+	l.Info("response")
 
-	c.JSON(http.StatusOK, &dto.Response{
-		ErrCode:   code,
-		ErrMsg:    e,
-		Timestamp: now.New().Unix(),
-		Data:      data,
-	})
+	c.JSON(http.StatusOK, response)
 }
 
 func (c *Ctx) UserGUID() (uuid.GUID, bool) {

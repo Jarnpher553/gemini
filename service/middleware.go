@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/opentracing/opentracing-go"
@@ -15,7 +16,6 @@ import (
 	"github.com/Jarnpher553/gemini/erro"
 	"github.com/Jarnpher553/gemini/jwt"
 	"github.com/Jarnpher553/gemini/limit"
-	"github.com/Jarnpher553/gemini/log"
 	"github.com/Jarnpher553/gemini/metric"
 	"github.com/Jarnpher553/gemini/tracing"
 )
@@ -94,13 +94,11 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 			if err != nil {
 				switch cb.State() {
 				case gobreaker.StateClosed:
-					log.Zap.Mark("Breaker").Error(log.Message(erro.ErrMsg[erro.ErrDefault], err))
-					ctx.Response(erro.ErrDefault, nil)
+					ctx.Failure(erro.ErrDefault, err)
 				case gobreaker.StateOpen:
-					log.Zap.Mark("Breaker").Error(log.Message(erro.ErrMsg[erro.ErrBreaker], err))
-					ctx.Response(erro.ErrBreaker, nil)
+					ctx.Failure(erro.ErrBreaker, err)
 				case gobreaker.StateHalfOpen:
-					log.Zap.Mark("Breaker").Error(log.Message(erro.ErrMsg[erro.ErrMaxRequest], err))
+					ctx.Failure(erro.ErrMaxRequest, err)
 				}
 				ctx.Abort()
 				return
@@ -114,9 +112,7 @@ func RateLimiterMiddleware(limiter *limit.Limiter) Middleware {
 	return func(srv IBaseService) HandlerFunc {
 		return func(ctx *Ctx) {
 			if !limiter.Allow() {
-				log.Zap.Mark("Limiter").Error(log.Message(erro.ErrMsg[erro.ErrRateLimiter], "rate limit exceeded"))
-
-				ctx.Response(erro.ErrRateLimiter, nil)
+				ctx.Failure(erro.ErrRateLimiter, errors.New("rate limit exceeded"))
 				ctx.Abort()
 				return
 			}
@@ -129,9 +125,7 @@ func DelayLimiterMiddleware(limiter *limit.Limiter) Middleware {
 	return func(srv IBaseService) HandlerFunc {
 		return func(ctx *Ctx) {
 			if err := limiter.Wait(ctx.Request.Context()); err != nil {
-				log.Zap.Mark("Limiter").Error(log.Message(erro.ErrMsg[erro.ErrDelayLimiter], err))
-
-				ctx.Response(erro.ErrDelayLimiter, nil)
+				ctx.Failure(erro.ErrDelayLimiter, err)
 				ctx.Abort()
 				return
 			}
@@ -144,9 +138,7 @@ func ReserveLimiterMiddleware(limiter *limit.Limiter) Middleware {
 		return func(ctx *Ctx) {
 			r := limiter.Reserve()
 			if !r.OK() {
-				log.Zap.Mark("Limiter").Error(log.Message(erro.ErrMsg[erro.ErrReserveLimiter], "Did you remember to set lim.burst to be > 0 ?"))
-
-				ctx.Response(erro.ErrReserveLimiter, nil)
+				ctx.Failure(erro.ErrReserveLimiter, errors.New("lim.burst must to be > 0"))
 				ctx.Abort()
 				return
 			}
@@ -165,8 +157,7 @@ func AuthMiddleware() Middleware {
 				rdClient := baseService.Redis()
 
 				if rdClient == nil {
-					log.Zap.Mark("Author").Error(log.Message(erro.ErrAuthor, erro.ErrMsg[erro.ErrAuthor], err))
-					ctx.Response(erro.ErrAuthor, nil)
+					ctx.Failure(erro.ErrAuthor, err)
 					ctx.Abort()
 					return
 				} else {
@@ -174,8 +165,7 @@ func AuthMiddleware() Middleware {
 					uid := rdClient.Get(token)
 
 					if uid == "" {
-						log.Zap.Mark("Author").Error(log.Message(erro.ErrAuthor, erro.ErrMsg[erro.ErrAuthor], err))
-						ctx.Response(erro.ErrAuthor, nil)
+						ctx.Failure(erro.ErrAuthor, err)
 						ctx.Abort()
 						return
 					} else {

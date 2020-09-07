@@ -10,7 +10,7 @@ import (
 )
 
 //失效任务实例
-var delay = &Delay{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}, logger: log.Zap.Mark("TaskDelay")}
+var delay = &Delay{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}, logger: log.Zap.Mark("taskDelay")}
 
 type Delay struct {
 	options *task.Options

@@ -37,7 +37,7 @@ func Collection(cl string) Option {
 	}
 }
 
-var entry = log.Zap.Mark("Mongo")
+var entry = log.Zap.Mark("mongo")
 
 func New(opts ...Option) *MgoClient {
 	mgo := &MgoClient{}

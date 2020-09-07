@@ -27,11 +27,7 @@ type Router struct {
 	template string
 }
 
-// 初始化 初始化gin输出位置
-func init() {
-	gin.DefaultWriter = zap.NewStdLog(log.Zap.Mark("Gin").Logger).Writer()
-	gin.DefaultErrorWriter = zap.NewStdLog(log.Zap.Mark("Gin").Logger).Writer()
-}
+var zapLogger = log.Zap.Mark("gin")
 
 type Option func(router *Router)
 
@@ -58,13 +54,33 @@ func StaticFs(path string) Option {
 	}
 }
 
-func (r *Router) Startup(serverName string) {
-	r.rootGroup(serverName)
+type Config struct {
+	ServerName string
+	RunMode    string
+}
+
+func (r *Router) Startup(config *Config) {
+	gin.SetMode(config.RunMode)
+
+	r.rootGroup(config.ServerName)
 	r.register()
+	r.printRoutes()
+}
+
+func (r *Router) printRoutes() {
+	for _, route := range r.Engine.Routes() {
+		zapLogger.Info("add route", zap.String("method", route.Method), zap.String("path", route.Path))
+	}
+}
+
+func ginEngine() *gin.Engine {
+	engine := gin.New()
+	engine.Use(recoverMiddleware(500))
+	return engine
 }
 
 func (r *Router) rootGroup(group string) {
-	r.Engine = gin.Default()
+	r.Engine = ginEngine()
 
 	for i := range r.services {
 		r.services[i].Node().ServerName = group

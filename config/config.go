@@ -7,7 +7,7 @@ import (
 
 type Config = viper.Viper
 
-var logger = log.Zap.Mark("Config")
+var logger = log.Zap.Mark("config")
 
 //默认使用当前文件夹下的config.yaml文件
 //func init() {

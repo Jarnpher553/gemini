@@ -9,7 +9,7 @@ import (
 )
 
 //失效任务实例
-var exp = &Expire{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}, logger: log.Zap.Mark("TaskExpire")}
+var exp = &Expire{handles: make(map[string]task.Handle), m: &sync.Mutex{}, options: &task.Options{}, logger: log.Zap.Mark("taskExpire")}
 
 //失效任务
 type Expire struct {

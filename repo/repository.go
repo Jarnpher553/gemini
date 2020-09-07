@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Jarnpher553/gemini/log"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 	"reflect"
 	"strings"
 )
@@ -84,7 +85,7 @@ func DbName(dbName string) Option {
 // New 构造函数
 func New(options ...Option) *Repository {
 	repo := &Repository{
-		Logger: log.Zap.Mark("Repo"),
+		Logger: log.Zap.Mark("repo"),
 	}
 
 	for i := range options {
@@ -458,8 +459,12 @@ func Escape(input string) string {
 }
 
 func (repo *Repository) Print(args ...interface{}) {
-	formatter := gorm.LogFormatter(args...)
-	repo.Logger.Info(log.Message(formatter[2], formatter[3], strings.Replace(formatter[4].(string), "\n", "", -1)))
+	gorm.LogFormatter()
+	formatter := gormLogFormatter(args...)
+	repo.Logger.With(zap.String("source", formatter[0].(string))).
+		With(zap.String("cost", formatter[2].(string))).
+		With(zap.String("sql", formatter[3].(string))).
+		Info(formatter[4].(string))
 }
 
 func (repo *Repository) Migrate(initial func(*Repository), values ...interface{}) {

@@ -36,7 +36,7 @@ type ZapReporter struct {
 // NewReporter 构造函数
 func NewZapReporter() reporter.Reporter {
 	return &ZapReporter{
-		ZapLogger: log.Zap.Mark("Tracer"),
+		ZapLogger: log.Zap.Mark("tracer"),
 	}
 }
 

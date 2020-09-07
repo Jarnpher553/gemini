@@ -36,6 +36,6 @@ func Bind(options ...Option) {
 
 	MqttClient = MQTT.NewClient(opts)
 	if token := MqttClient.Connect(); token.Wait() && token.Error() != nil {
-		log.Zap.Mark("MQTT").Fatal(log.Message(token.Error()))
+		log.Zap.Mark("mqtt").Fatal(log.Message(token.Error()))
 	}
 }

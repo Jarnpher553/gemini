@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 	"github.com/Jarnpher553/gemini/util/addr"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,7 +18,6 @@ import (
 	"github.com/Jarnpher553/gemini/log"
 	"github.com/Jarnpher553/gemini/router"
 	"github.com/Jarnpher553/gemini/service"
-	"github.com/gin-gonic/gin"
 )
 
 // DefaultServer 默认服务器
@@ -62,7 +64,6 @@ func Name(name string) Option {
 func RunMode(mode string) Option {
 	return func(server *DefaultServer) {
 		server.runMode = mode
-		gin.SetMode(server.runMode)
 	}
 }
 
@@ -80,8 +81,9 @@ func Default(options ...Option) IBaseServer {
 			//WriteTimeout:   10 * time.Second,
 			//MaxHeaderBytes: 1 << 20,
 		},
-		name:   "micro",
-		logger: log.Zap.Mark("DefaultServer"),
+		name:    "micro",
+		logger:  log.Zap.Mark("server"),
+		runMode: gin.ReleaseMode,
 	}
 
 	for _, op := range options {
@@ -91,7 +93,10 @@ func Default(options ...Option) IBaseServer {
 	r, ok := server.Handler.(*router.Router)
 	if ok {
 		server.printBanner()
-		r.Startup(server.name)
+		r.Startup(&router.Config{
+			ServerName: server.name,
+			RunMode:    server.runMode,
+		})
 	}
 
 	return server
@@ -114,11 +119,11 @@ func (s *DefaultServer) printBanner() {
 
 // Run 实现IBaseServer接口
 func (s *DefaultServer) Run() {
-	defer log.Zap.Sync()
+	defer s.logger.Sync()
 
 	go func() {
-		s.logger.Info(log.Messagef("server running in %s env as %s mode", s.env, s.runMode))
-		s.logger.Info(log.Messagef("server listening on %s...", s.Server.Addr))
+		s.logger.Info(log.Messagef("server running in %s env", s.env), []zapcore.Field{zap.String("name", s.name), zap.String("scheme", "http")}...)
+		s.logger.Info(log.Messagef("server listening on %s...", s.Server.Addr), []zapcore.Field{zap.String("name", s.name), zap.String("scheme", "http")}...)
 
 		if err := s.ListenAndServe(); err != nil {
 			s.logger.Fatal(log.Message(err))

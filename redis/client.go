@@ -53,7 +53,7 @@ func New(options ...Option) *RdClient {
 
 	client := &RdClient{
 		redis.NewClient(option),
-		log.Zap.Mark("Redis"),
+		log.Zap.Mark("redis"),
 	}
 
 	err := client.Ping().Err()

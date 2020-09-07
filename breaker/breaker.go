@@ -11,7 +11,7 @@ type CircuitBreaker struct {
 	*gobreaker.CircuitBreaker
 }
 
-var l = log.Zap.Mark("Breaker")
+var l = log.Zap.Mark("breaker")
 var state = map[gobreaker.State]string{
 	0: "close",
 	1: "half-open",

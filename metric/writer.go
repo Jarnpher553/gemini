@@ -16,7 +16,7 @@ type logWriter struct {
 // NewWriter 构造函数
 func NewWriter(freq time.Duration) IWriter {
 	return &logWriter{
-		logger: log.Zap.Mark("Metric"),
+		logger: log.Zap.Mark("metric"),
 		freq:   freq,
 	}
 }

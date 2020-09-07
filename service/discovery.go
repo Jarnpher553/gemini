@@ -20,7 +20,7 @@ type Registry struct {
 }
 
 func NewRegistry(addr string, s ...selector.Selector) *Registry {
-	logger := log.Zap.Mark("Registry")
+	logger := log.Zap.Mark("registry")
 	config := consul.DefaultConfig()
 	config.Address = addr
 	cli, err := consul.NewClient(config)
@@ -90,7 +90,7 @@ func (r *Registry) Register(node *NodeInfo, group *sync.WaitGroup, errChan chan 
 	}
 
 	if err := r.Agent().ServiceRegister(asr); err != nil {
-		log.Zap.Mark("Registry").Fatal(log.Message(err))
+		log.Zap.Mark("registry").Fatal(log.Message(err))
 
 		errChan <- err
 		return
