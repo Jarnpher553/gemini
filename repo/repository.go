@@ -471,7 +471,7 @@ func (repo *Repository) Print(args ...interface{}) {
 			Info(formatter[4].(string))
 	} else {
 		l.
-			Error(formatter[2].(mysql.MySQLError).Message)
+			Error(formatter[2].(*mysql.MySQLError).Message)
 	}
 }
 
