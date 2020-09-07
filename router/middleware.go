@@ -124,11 +124,7 @@ func recoverMiddleware(slowQueryThresholdInMilli int64) gin.HandlerFunc {
 				zap.String("ip", ip),
 				zap.String("err", err),
 			)
-			if code == 200 {
-				zapLogger.Info("access", fields...)
-			} else {
-				zapLogger.Error("access", fields...)
-			}
+			zapLogger.Info("access", fields...)
 		}()
 		c.Next()
 	}
