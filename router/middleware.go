@@ -109,7 +109,7 @@ func recoverMiddleware(slowQueryThresholdInMilli int64) gin.HandlerFunc {
 
 			method := c.Request.Method
 			code := c.Writer.Status()
-			size := c.Writer.Size()
+			//size := c.Writer.Size()
 			host := c.Request.Host
 			path := c.Request.URL.Path
 			ip := c.ClientIP()
@@ -118,7 +118,7 @@ func recoverMiddleware(slowQueryThresholdInMilli int64) gin.HandlerFunc {
 			fields = append(fields,
 				zap.String("method", method),
 				zap.Int("code", code),
-				zap.Int("size", size),
+				//zap.Int("size", size),
 				zap.String("host", host),
 				zap.String("path", path),
 				zap.String("ip", ip),
