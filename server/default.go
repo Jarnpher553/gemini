@@ -122,8 +122,7 @@ func (s *DefaultServer) Run() {
 	defer s.logger.Sync()
 
 	go func() {
-		s.logger.Info(log.Messagef("server running in env %s", s.env), []zapcore.Field{zap.String("name", s.name), zap.String("scheme", "http")}...)
-		s.logger.Info(log.Messagef("server listening on addr %s", s.Server.Addr), []zapcore.Field{zap.String("name", s.name), zap.String("scheme", "http")}...)
+		s.logger.Info(log.Message("start server"), []zapcore.Field{zap.String("name", s.name), zap.String("env", s.env), zap.String("addr", s.Server.Addr), zap.String("scheme", "http")}...)
 
 		if err := s.ListenAndServe(); err != nil {
 			s.logger.Fatal(log.Message(err))
