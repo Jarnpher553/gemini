@@ -69,7 +69,7 @@ func (c *Ctx) response(code int, data interface{}, err string, actual bool) {
 		Data:      data,
 	}
 
-	log.Zap.Caller(3).
+	log.Zap.Source(3).
 		With(zap.Int("resp_code", code)).
 		With(zap.String("resp_msg", erro.ErrMsg[code])).
 		With(zap.String("resp_err", err)).

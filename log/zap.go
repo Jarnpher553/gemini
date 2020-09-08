@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -93,6 +94,14 @@ func (l *ZapLogger) Caller(skip int) *ZapLogger {
 	}
 
 	return &ZapLogger{l.Logger.With(fields...)}
+}
+
+func (l *ZapLogger) Source(skip int) *ZapLogger {
+	_, file, line, _ := runtime.Caller(skip)
+
+	fileSplit := strings.Split(file, "/")
+	fileShort := strings.Join(fileSplit[len(fileSplit):], "")
+	return &ZapLogger{l.Logger.With(zap.String("source", fileShort+":"+strconv.Itoa(line)))}
 }
 
 func Message(messages ...interface{}) string {
