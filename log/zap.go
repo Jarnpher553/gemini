@@ -102,7 +102,7 @@ func (l *ZapLogger) Source(skip int) *ZapLogger {
 	_, file, line, _ := runtime.Caller(skip)
 
 	fileSplit := strings.Split(file, "/")
-	fileShort := strings.Join(fileSplit[len(fileSplit)-2:], "")
+	fileShort := strings.Join(fileSplit[len(fileSplit)-2:], "/")
 	return &ZapLogger{l.Logger.With(zap.String("source", fileShort+":"+strconv.Itoa(line)))}
 }
 

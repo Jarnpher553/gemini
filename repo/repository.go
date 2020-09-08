@@ -462,8 +462,8 @@ func Escape(input string) string {
 func (repo *Repository) Print(args ...interface{}) {
 	gorm.LogFormatter()
 	formatter := gormLogFormatter(args...)
- 	source := strings.Split(formatter[0].(string), "/")
-	l := repo.Logger.With(zap.Strings("source", source[len(source)-2:]))
+	source := strings.Split(formatter[0].(string), "/")
+	l := repo.Logger.With(zap.String("source", strings.Join(source[len(source)-2:], "/")))
 	if args[0] == "sql" {
 		l.
 			With(zap.String("cost", formatter[2].(string))).
