@@ -16,6 +16,7 @@ type ZapLogger struct {
 }
 
 var Zap *ZapLogger
+var Logger *ZapLogger
 
 func init() {
 	new()
@@ -50,6 +51,7 @@ func new() {
 
 	logger, _ := config.Build()
 	Zap = &ZapLogger{Logger: logger}
+	Logger = Zap
 }
 
 func Producation() {
@@ -100,7 +102,7 @@ func (l *ZapLogger) Source(skip int) *ZapLogger {
 	_, file, line, _ := runtime.Caller(skip)
 
 	fileSplit := strings.Split(file, "/")
-	fileShort := strings.Join(fileSplit[len(fileSplit):], "")
+	fileShort := strings.Join(fileSplit[len(fileSplit)-2:], "")
 	return &ZapLogger{l.Logger.With(zap.String("source", fileShort+":"+strconv.Itoa(line)))}
 }
 

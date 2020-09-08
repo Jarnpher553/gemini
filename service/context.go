@@ -70,9 +70,9 @@ func (c *Ctx) response(code int, data interface{}, err string, actual bool) {
 	}
 
 	log.Zap.Source(3).
-		With(zap.Int("resp_code", code)).
-		With(zap.String("resp_msg", erro.ErrMsg[code])).
-		With(zap.String("resp_err", err)).
+		With(zap.Int("response.code", code)).
+		With(zap.String("response.msg", erro.ErrMsg[code])).
+		With(zap.String("response.err", err)).
 		Info("response")
 
 	c.JSON(http.StatusOK, response)

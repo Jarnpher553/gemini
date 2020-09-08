@@ -1,33 +1,12 @@
 package tracing
 
 import (
-	"fmt"
 	"github.com/Jarnpher553/gemini/log"
 	"github.com/openzipkin/zipkin-go/model"
 	"github.com/openzipkin/zipkin-go/reporter"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
-
-// logrusReporter 日志报告者类，用于tracer输出
-//type logrusReporter struct {
-//	*log.LogrusLogger
-//}
-//
-//// NewReporter 构造函数
-//func NewLogrusReporter() reporter.Reporter {
-//	return &logrusReporter{
-//		LogrusLogger: log.Logrus,
-//	}
-//}
-//
-//// Send 实现Reporter接口
-//func (r *logrusReporter) Send(s model.SpanModel) {
-//	if b, err := s.MarshalJSON(); err == nil {
-//		r.Mark("Tracer").Info(fmt.Sprintf("%s", string(b)))
-//	}
-//}
-
-// Close 实现Reporter接口
-//func (*logrusReporter) Close() error { return nil }
 
 type ZapReporter struct {
 	*log.ZapLogger
@@ -42,9 +21,17 @@ func NewZapReporter() reporter.Reporter {
 
 // Send 实现Reporter接口
 func (r *ZapReporter) Send(s model.SpanModel) {
-	if b, err := s.MarshalJSON(); err == nil {
-		r.Info(fmt.Sprintf("%s", string(b)))
-	}
+	fields := make([]zapcore.Field, 0)
+	fields = append(fields, zap.String("cost", s.Duration.String()))
+	fields = append(fields, zap.String("trace_id", s.TraceID.String()))
+	fields = append(fields, zap.String("id", s.ID.String()))
+	fields = append(fields, zap.String("name", s.Name))
+	fields = append(fields, zap.String("kind", string(s.Kind)))
+	fields = append(fields, zap.String("http.method", s.Tags["http.method"]))
+	fields = append(fields, zap.String("http.status_code", s.Tags["http.status_code"]))
+	fields = append(fields, zap.String("http.url", s.Tags["http.url"]))
+
+	r.Info("tracing", fields...)
 }
 
 // Close 实现Reporter接口

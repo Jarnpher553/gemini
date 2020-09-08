@@ -10,6 +10,8 @@ import (
 	"github.com/openzipkin/zipkin-go/reporter"
 )
 
+var logger = log.Logger.Mark("tracer")
+
 // Tracer 跟踪类
 type Tracer struct {
 	opentracing.Tracer
@@ -20,7 +22,7 @@ func New(reporter reporter.Reporter) *Tracer {
 	t, err := zipkin.NewTracer(reporter, zipkin.WithSharedSpans(false))
 
 	if err != nil {
-		log.Zap.Mark("tracer").Fatal(log.Message(err))
+		logger.Fatal(log.Message(err))
 	}
 
 	tracer := zipkinAdapter.Wrap(t)
