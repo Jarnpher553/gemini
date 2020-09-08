@@ -28,7 +28,7 @@ type DefaultServer struct {
 	runMode string
 	env     string
 	logger  *log.ZapLogger
-	startup func()
+	startup func() error
 }
 
 type Option func(server *DefaultServer)
@@ -100,6 +100,11 @@ func Default(options ...Option) IBaseServer {
 	r, ok := server.Handler.(*router.Router)
 	if ok {
 		server.printBanner()
+		if server.startup != nil {
+			if err := server.startup(); err != nil {
+				server.logger.Fatal(err.Error())
+			}
+		}
 		r.Startup(&router.Config{
 			ServerName: server.name,
 			RunMode:    server.runMode,
@@ -129,9 +134,6 @@ func (s *DefaultServer) Run() {
 	defer s.logger.Sync()
 
 	go func() {
-		if s.startup != nil {
-			s.startup()
-		}
 		s.logger.Info(log.Message("start server"), []zapcore.Field{zap.String("name", s.name), zap.String("env", s.env), zap.String("addr", s.Server.Addr), zap.String("scheme", "http")}...)
 
 		if err := s.ListenAndServe(); err != nil {
