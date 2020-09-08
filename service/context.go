@@ -68,14 +68,12 @@ func (c *Ctx) response(code int, data interface{}, err string, actual bool) {
 		Timestamp: now.New().Unix(),
 		Data:      data,
 	}
-	l := log.Zap.Mark("service").
-		With(zap.Int("code", code)).
-		With(zap.String("msg", erro.ErrMsg[code]))
 
-	if err != "" {
-		l = l.With(zap.String("err", err))
-	}
-	l.Info("response")
+	log.Zap.Caller(3).
+		With(zap.Int("resp_code", code)).
+		With(zap.String("resp_msg", erro.ErrMsg[code])).
+		With(zap.String("resp_err", err)).
+		Info("response")
 
 	c.JSON(http.StatusOK, response)
 }

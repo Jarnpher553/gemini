@@ -84,11 +84,11 @@ func (l *ZapLogger) Caller(skip int) *ZapLogger {
 			continue
 		}
 		if strings.Contains(callerSplit[i], "/") {
-			fields = append(fields, zap.String("package", strings.ToLower(strings.Split(callerSplit[i], "/")[1])))
+			fields = append(fields, zap.String("mod", strings.ToLower(strings.Split(callerSplit[i], "/")[1])))
 		} else if strings.Contains(callerSplit[i], "*") {
-			fields = append(fields, zap.String("class", strings.ToLower(strings.Trim(callerSplit[i], "()*"))))
+			fields = append(fields, zap.String("struct", strings.ToLower(strings.Trim(callerSplit[i], "()*"))))
 		} else {
-			fields = append(fields, zap.String("method", strings.ToLower(callerSplit[i])))
+			fields = append(fields, zap.String("func", strings.ToLower(callerSplit[i])))
 		}
 	}
 
