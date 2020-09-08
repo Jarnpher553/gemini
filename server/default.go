@@ -74,7 +74,7 @@ func Env(env string) Option {
 	}
 }
 
-func Startup(startup func()) Option {
+func Startup(startup func() error) Option {
 	return func(server *DefaultServer) {
 		server.startup = startup
 	}
