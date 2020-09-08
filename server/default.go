@@ -28,6 +28,7 @@ type DefaultServer struct {
 	runMode string
 	env     string
 	logger  *log.ZapLogger
+	startup func()
 }
 
 type Option func(server *DefaultServer)
@@ -70,6 +71,12 @@ func RunMode(mode string) Option {
 func Env(env string) Option {
 	return func(server *DefaultServer) {
 		server.env = env
+	}
+}
+
+func Startup(startup func()) Option {
+	return func(server *DefaultServer) {
+		server.startup = startup
 	}
 }
 
@@ -122,6 +129,9 @@ func (s *DefaultServer) Run() {
 	defer s.logger.Sync()
 
 	go func() {
+		if s.startup != nil {
+			s.startup()
+		}
 		s.logger.Info(log.Message("start server"), []zapcore.Field{zap.String("name", s.name), zap.String("env", s.env), zap.String("addr", s.Server.Addr), zap.String("scheme", "http")}...)
 
 		if err := s.ListenAndServe(); err != nil {
