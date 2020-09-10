@@ -28,7 +28,7 @@ func NewPrinter() IPrinter {
 
 func (lw *logPrinter) Printf(format string, v ...interface{}) {
 	lw.once.Do(func() {
-		lw.timing()
+		go lw.timing()
 	})
 	if strings.Index(format, ":") != -1 {
 		lw.fields = append(lw.fields, zap.Any(strings.Split(format, " ")[0], v[0]))
