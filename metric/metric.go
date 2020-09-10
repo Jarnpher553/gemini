@@ -59,7 +59,7 @@ func (metric *Metric) Start() {
 	metric.register()
 
 	metric.once.Do(func() {
-		go metric.log(metric.reg, metric.freq, time.Nanosecond, metric.printer)
+		go metric.log(metric.reg, metric.freq, time.Millisecond, metric.printer)
 	})
 }
 
