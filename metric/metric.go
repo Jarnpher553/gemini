@@ -76,27 +76,27 @@ func (metric *Metric) log(registry metrics.Registry, freq time.Duration, scale t
 		registry.Each(func(name string, i interface{}) {
 			switch m := i.(type) {
 			case metrics.Counter:
-				logger.Print(map[string]string{"name": metric.name, "counter": name, "count": fmt.Sprintf("%9d", m.Count())})
+				logger.Print(map[string]string{"name": metric.name, "counter": name, "count": fmt.Sprintf("%d", m.Count())})
 			case metrics.Timer:
 				t := m.Snapshot()
 				ps := t.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999})
 				logger.Print(map[string]string{
 					"name":        metric.name,
 					"timer":       name,
-					"count":       fmt.Sprintf("%9d", t.Count()),
-					"min":         fmt.Sprintf("%12.2f%s", float64(t.Min())/du, duSuffix),
-					"max":         fmt.Sprintf("%12.2f%s", float64(t.Max())/du, duSuffix),
-					"mean":        fmt.Sprintf("%12.2f%s", t.Mean()/du, duSuffix),
-					"stddev":      fmt.Sprintf("%12.2f%s", t.StdDev()/du, duSuffix),
-					"median":      fmt.Sprintf("%12.2f%s", ps[0]/du, duSuffix),
-					"75%%":        fmt.Sprintf("%12.2f%s", ps[1]/du, duSuffix),
-					"95%%":        fmt.Sprintf("%12.2f%s", ps[2]/du, duSuffix),
-					"99%%":        fmt.Sprintf("%12.2f%s", ps[3]/du, duSuffix),
-					"99.9%%":      fmt.Sprintf("%12.2f%s", ps[4]/du, duSuffix),
-					"1-min rate":  fmt.Sprintf("%12.2f", t.Rate1()),
-					"5-min rate":  fmt.Sprintf("%12.2f", t.Rate5()),
-					"15-min rate": fmt.Sprintf("%12.2f", t.Rate15()),
-					"mean rate":   fmt.Sprintf("%12.2f", t.RateMean()),
+					"count":       fmt.Sprintf("%d", t.Count()),
+					"min":         fmt.Sprintf("%.2f%s", float64(t.Min())/du, duSuffix),
+					"max":         fmt.Sprintf("%.2f%s", float64(t.Max())/du, duSuffix),
+					"mean":        fmt.Sprintf("%.2f%s", t.Mean()/du, duSuffix),
+					"stddev":      fmt.Sprintf("%.2f%s", t.StdDev()/du, duSuffix),
+					"median":      fmt.Sprintf("%.2f%s", ps[0]/du, duSuffix),
+					"75%%":        fmt.Sprintf("%.2f%s", ps[1]/du, duSuffix),
+					"95%%":        fmt.Sprintf("%.2f%s", ps[2]/du, duSuffix),
+					"99%%":        fmt.Sprintf("%.2f%s", ps[3]/du, duSuffix),
+					"99.9%%":      fmt.Sprintf("%.2f%s", ps[4]/du, duSuffix),
+					"1-min rate":  fmt.Sprintf("%.2f", t.Rate1()),
+					"5-min rate":  fmt.Sprintf("%.2f", t.Rate5()),
+					"15-min rate": fmt.Sprintf("%.2f", t.Rate15()),
+					"mean rate":   fmt.Sprintf("%.2f", t.RateMean()),
 				})
 			}
 		})
