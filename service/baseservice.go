@@ -159,7 +159,7 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 	}
 
 	if bs.interceptor.Metric == nil {
-		bs.interceptor.Metric = metric.New(metric.NewWriter(1 * time.Minute))
+		bs.interceptor.Metric = metric.New(metric.NewPrinter(), 1*time.Minute)
 
 	}
 

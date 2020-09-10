@@ -6,9 +6,9 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	writer := NewWriter(time.Second * 2)
+	printer := NewPrinter()
 
-	m := New(writer)
+	m := New(printer, time.Second*1)
 
 	if m == nil {
 		t.FailNow()
@@ -22,9 +22,9 @@ func TestMetric_Start(t *testing.T) {
 		}
 	}()
 
-	writer := NewWriter(time.Second * 2)
+	printer := NewPrinter()
 
-	m := New(writer)
+	m := New(printer, time.Second*1)
 
 	m.Stop()
 
@@ -38,9 +38,9 @@ func TestMetric_Stop(t *testing.T) {
 		}
 	}()
 
-	writer := NewWriter(time.Second * 2)
+	printer := NewPrinter()
 
-	m := New(writer)
+	m := New(printer, time.Second*1)
 
 	m.Stop()
 }

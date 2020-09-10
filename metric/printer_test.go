@@ -12,9 +12,9 @@ func TestNewWriter(t *testing.T) {
 		}
 	}()
 
-	writer := NewWriter(time.Second * 2)
+	printer := NewPrinter()
 
-	if writer == nil {
+	if printer == nil {
 		t.FailNow()
 	}
 
@@ -27,13 +27,13 @@ func TestLogWriter_Write(t *testing.T) {
 		}
 	}()
 
-	writer := NewWriter(time.Second * 2)
+	printer := NewPrinter()
 
-	if writer == nil {
+	if printer == nil {
 		t.FailNow()
 	}
 
-	m := New(writer)
+	m := New(printer, time.Second*2)
 
 	m.Stop()
 
