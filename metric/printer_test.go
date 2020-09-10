@@ -33,7 +33,7 @@ func TestLogWriter_Write(t *testing.T) {
 		t.FailNow()
 	}
 
-	m := New(printer, time.Second*2)
+	m := New(&Config{"", printer, time.Second * 1})
 
 	m.Stop()
 
