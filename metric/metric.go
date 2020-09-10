@@ -49,7 +49,7 @@ func (metric *Metric) unregister() {
 // Start 开始打印
 func (metric *Metric) Start() {
 	metric.once.Do(func() {
-		metrics.Log(metric.reg, metric.freq, metric.printer)
+		go metrics.Log(metric.reg, metric.freq, metric.printer)
 	})
 	metric.register()
 }
