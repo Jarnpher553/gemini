@@ -48,10 +48,11 @@ func (metric *Metric) unregister() {
 
 // Start 开始打印
 func (metric *Metric) Start() {
+	metric.register()
+
 	metric.once.Do(func() {
 		go metrics.Log(metric.reg, metric.freq, metric.printer)
 	})
-	metric.register()
 }
 
 // Stop 取消打印
