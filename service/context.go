@@ -41,25 +41,25 @@ func (c *Ctx) FileStream(data []byte, filename string) {
 }
 
 func (c *Ctx) Success(data interface{}) {
-	c.response(erro.ErrSuccess, data, "", false)
+	c.response(erro.ErrSuccess, data, nil, false)
 }
 
 func (c *Ctx) Failure(code int, err error, actual ...bool) {
 	if len(actual) != 0 && actual[0] {
-		c.response(code, nil, err.Error(), true)
+		c.response(code, nil, err, true)
 	} else {
-		c.response(code, nil, err.Error(), false)
+		c.response(code, nil, err, false)
 	}
 }
 
 func (c *Ctx) Response(code int, data interface{}, err error) {
-	c.response(code, data, err.Error(), false)
+	c.response(code, data, err, false)
 }
 
-func (c *Ctx) response(code int, data interface{}, err string, actual bool) {
+func (c *Ctx) response(code int, data interface{}, err error, actual bool) {
 	var msg = erro.ErrMsg[code]
 	if actual {
-		msg = err
+		msg = err.Error()
 	}
 
 	response := &dto.Response{
@@ -72,7 +72,7 @@ func (c *Ctx) response(code int, data interface{}, err string, actual bool) {
 	log.Zap.Source(3).
 		With(zap.Int("response.code", code)).
 		With(zap.String("response.msg", erro.ErrMsg[code])).
-		With(zap.String("response.err", err)).
+		With(zap.NamedError("response.err", err)).
 		Info("response")
 
 	c.JSON(http.StatusOK, response)
