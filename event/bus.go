@@ -11,7 +11,8 @@ import (
 
 type Bus struct {
 	*redis.RdClient
-	ch chan Event
+	ch   chan Event
+	name string
 }
 
 type Event struct {
@@ -38,6 +39,10 @@ func Bind(client *redis.RdClient) {
 }
 
 func Subscribe(name string) error {
+	if bus.name != "" {
+		return errors.New("event bus has existed")
+	}
+	bus.name = name
 	ps := bus.RdClient.Subscribe(name)
 	go func() {
 		for message := range ps.Channel() {
