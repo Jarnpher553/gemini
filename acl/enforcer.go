@@ -30,7 +30,7 @@ type Request struct {
 }
 
 type IAdapter interface {
-	LoadPolicy() (*PolicyKeyValuePair, error)
+	LoadPolicy(a ...interface{}) (*PolicyKeyValuePair, error)
 }
 
 func NewEnforcer(adapter IAdapter) *Enforcer {
