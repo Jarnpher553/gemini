@@ -38,7 +38,7 @@ func NewEnforcer(adapter IAdapter) *Enforcer {
 }
 
 func (e *Enforcer) LoadPolicy(a ...interface{}) error {
-	policyKeyValuePair, err := e.adapter.LoadPolicy()
+	policyKeyValuePair, err := e.adapter.LoadPolicy(a...)
 	if err != nil {
 		return err
 	}
