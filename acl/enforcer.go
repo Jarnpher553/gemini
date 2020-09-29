@@ -2,64 +2,63 @@ package acl
 
 import (
 	"errors"
-	"sync"
+	cmap "github.com/orcaman/concurrent-map"
 )
 
 type Enforcer struct {
-	mutex    sync.RWMutex
 	adapter  IAdapter
-	policies []Policy
+	policies cmap.ConcurrentMap
+}
+
+type PolicyKeyValuePair struct {
+	Subject string
+	Polices []Policy
 }
 
 type Policy struct {
-	Subject interface{}
-	Domain  interface{}
-	Object  interface{}
-	Action  interface{}
+	Subject string
+	Domain  string
+	Object  string
+	Action  string
 }
 
 type Request struct {
-	Subject interface{}
-	Domain  interface{}
-	Object  interface{}
-	Action  interface{}
+	Subject string
+	Domain  string
+	Object  string
+	Action  string
 }
 
 type IAdapter interface {
-	LoadPolicy() ([]Policy, error)
-	Enforce() func(*Request) error
+	LoadPolicy() (*PolicyKeyValuePair, error)
 }
 
 func NewEnforcer(adapter IAdapter) *Enforcer {
-	return &Enforcer{adapter: adapter}
+	return &Enforcer{adapter: adapter, policies: cmap.New()}
 }
 
 func (e *Enforcer) LoadPolicy() error {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
-	policies, err := e.adapter.LoadPolicy()
+	policyKeyValuePair, err := e.adapter.LoadPolicy()
 	if err != nil {
 		return err
 	}
-	e.policies = policies
+	e.policies.Set(policyKeyValuePair.Subject, policyKeyValuePair.Polices)
 	return nil
 }
 
 func (e *Enforcer) Enforce(request *Request) error {
-	f := e.adapter.Enforce()
-	if f != nil {
-		return f(request)
-	} else {
-		e.mutex.RLock()
-		defer e.mutex.RUnlock()
-		for _, policy := range e.policies {
-			if policy.Subject == request.Subject &&
-				policy.Domain == request.Domain &&
-				policy.Object == request.Object &&
-				policy.Action == request.Action {
-				return nil
-			}
-		}
+	val, ok := e.policies.Get(request.Subject)
+	if !ok {
 		return errors.New("can't access")
 	}
+	policies := val.([]Policy)
+	for _, policy := range policies {
+		if policy.Subject == request.Subject &&
+			policy.Domain == request.Domain &&
+			policy.Object == request.Object &&
+			policy.Action == request.Action {
+			return nil
+		}
+	}
+	return errors.New("can't access")
 }
