@@ -29,7 +29,7 @@ const (
 	ErrDbRemove   = 506
 	ErrUserName   = 507
 	ErrPassword   = 508
-	ErrPermission = 509
+	ErrPermission = 4001
 	ErrToken      = 510
 	ErrDbInsert   = 511
 	ErrTemplate   = 512
