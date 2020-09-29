@@ -37,7 +37,7 @@ func NewEnforcer(adapter IAdapter) *Enforcer {
 	return &Enforcer{adapter: adapter, policies: cmap.New()}
 }
 
-func (e *Enforcer) LoadPolicy() error {
+func (e *Enforcer) LoadPolicy(a ...interface{}) error {
 	policyKeyValuePair, err := e.adapter.LoadPolicy()
 	if err != nil {
 		return err
