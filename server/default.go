@@ -28,10 +28,8 @@ type DefaultServer struct {
 	runMode string
 	env     string
 	logger  *log.ZapLogger
-	startup func() error
+	startup func(*DefaultServer) error
 }
-
-var defaultServer *DefaultServer
 
 type Option func(server *DefaultServer)
 
@@ -76,14 +74,14 @@ func Env(env string) Option {
 	}
 }
 
-func Startup(startup func() error) Option {
+func Startup(startup func(*DefaultServer) error) Option {
 	return func(server *DefaultServer) {
 		server.startup = startup
 	}
 }
 
-func Serve(r *router.Router) {
-	defaultServer.Handler = r
+func (s *DefaultServer) Serve(r *router.Router) {
+	s.Handler = r
 }
 
 // Default 构造函数
@@ -98,7 +96,6 @@ func Default(options ...Option) IBaseServer {
 		logger:  log.Zap.Mark("server"),
 		runMode: gin.ReleaseMode,
 	}
-	defaultServer = server
 
 	for _, op := range options {
 		op(server)
@@ -106,7 +103,7 @@ func Default(options ...Option) IBaseServer {
 
 	server.printBanner()
 	if server.startup != nil {
-		if err := server.startup(); err != nil {
+		if err := server.startup(server); err != nil {
 			server.logger.Fatal(err.Error())
 		}
 	}
