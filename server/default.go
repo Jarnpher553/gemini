@@ -111,7 +111,7 @@ func Default(options ...Option) IBaseServer {
 		}
 	}
 	if server.Handler == nil {
-		server.logger.Fatal("the router of server has been initialized")
+		server.logger.Fatal("the router of server hasn't been initialized")
 	}
 	r, _ := server.Handler.(*router.Router)
 
