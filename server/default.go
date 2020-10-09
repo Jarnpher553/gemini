@@ -28,7 +28,7 @@ type DefaultServer struct {
 	runMode string
 	env     string
 	logger  *log.ZapLogger
-	startup func() error
+	startup func(...*DefaultServer) error
 }
 
 type Option func(server *DefaultServer)
@@ -74,10 +74,14 @@ func Env(env string) Option {
 	}
 }
 
-func Startup(startup func() error) Option {
+func Startup(startup func(...*DefaultServer) error) Option {
 	return func(server *DefaultServer) {
 		server.startup = startup
 	}
+}
+
+func Serve(r *router.Router) {
+
 }
 
 // Default 构造函数
@@ -97,19 +101,21 @@ func Default(options ...Option) IBaseServer {
 		op(server)
 	}
 
-	r, ok := server.Handler.(*router.Router)
-	if ok {
-		server.printBanner()
-		if server.startup != nil {
-			if err := server.startup(); err != nil {
-				server.logger.Fatal(err.Error())
-			}
+	server.printBanner()
+	if server.startup != nil {
+		if err := server.startup(server); err != nil {
+			server.logger.Fatal(err.Error())
 		}
-		r.Startup(&router.Config{
-			ServerName: server.name,
-			RunMode:    server.runMode,
-		})
 	}
+	if server.Handler == nil {
+		server.logger.Fatal("the router of server has been initialized")
+	}
+	r, _ := server.Handler.(*router.Router)
+
+	r.Startup(&router.Config{
+		ServerName: server.name,
+		RunMode:    server.runMode,
+	})
 
 	return server
 }

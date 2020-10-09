@@ -124,10 +124,11 @@ func (r *Router) cors() {
 	}))
 }
 
-func (r *Router) Assign(service ...service.IBaseService) {
+func (r *Router) Assign(service ...service.IBaseService) *Router{
 	r.Lock()
 	defer r.Unlock()
 	r.services = append(r.services, service...)
+	return r
 }
 
 func (r *Router) register() {
