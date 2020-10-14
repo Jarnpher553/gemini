@@ -2,6 +2,7 @@ package delay
 
 import (
 	"context"
+	"errors"
 	"github.com/Jarnpher553/gemini/log"
 	"github.com/Jarnpher553/gemini/task"
 	"github.com/go-redis/redis"
@@ -54,14 +55,21 @@ func Run() {
 				default:
 					<-time.After(100 * time.Millisecond)
 					now := time.Now().UnixNano() / 1e6
-					zset := delay.options.Redis.ZRangeByScoreWithScores(k, redis.ZRangeBy{"-inf", "+inf", 0, 1}).Val()
-					if len(zset) == 0 {
+					_, err := delay.options.Redis.TxPipelined(func(pipeliner redis.Pipeliner) error {
+						zset := pipeliner.ZRangeByScoreWithScores(k, redis.ZRangeBy{"-inf", "+inf", 0, 1}).Val()
+						if len(zset) == 0 {
+							return errors.New("no task")
+						}
+						score := zset[0].Score
+						if float64(now) >= score {
+							go delay.handles[k](zset[0].Member, delay.options)
+							pipeliner.ZRem(k, zset[0].Member)
+						}
+
+						return nil
+					})
+					if err != nil {
 						continue
-					}
-					score := zset[0].Score
-					if float64(now) >= score {
-						go delay.handles[k](zset[0].Member, delay.options)
-						delay.options.Redis.ZRem(k, zset[0].Member)
 					}
 				}
 			}
