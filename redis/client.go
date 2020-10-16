@@ -2,7 +2,7 @@ package redis
 
 import (
 	"github.com/Jarnpher553/gemini/log"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"time"
 )
 
@@ -110,7 +110,7 @@ func (r *RdClient) HGet(key, field string) string {
 }
 
 func (r *RdClient) HSet(key, field string, val interface{}) bool {
-	return r.Client.HSet(key, field, val).Val()
+	return r.Client.HSet(key, field, val).Val() != 0
 }
 
 func (r *RdClient) HSetNX(key, field string, val interface{}) bool {
