@@ -1,4 +1,4 @@
-module github.com/Jarnpher553/cli/gemini
+module github.com/Jarnpher553/gemini/tools/gemini
 
 require (
 	github.com/spf13/cobra v1.1.0
