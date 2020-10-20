@@ -40,6 +40,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.2.1
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
+	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/roylee0704/gron v0.0.0-20160621042432-e78485adab46 // indirect
 	github.com/rs/xid v1.2.1
 	github.com/satori/go.uuid v1.2.0
@@ -47,6 +48,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/sony/gobreaker v0.4.1
 	github.com/sony/sonyflake v1.0.0
+	github.com/spf13/cast v1.3.1 // indirect
 	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect

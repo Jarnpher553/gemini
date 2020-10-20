@@ -1,7 +1,8 @@
 package scheduler
 
-func wrapper(sch *Scheduler, f func(*Options)) func() {
+
+func decorator(configuration *Configuration, f func(*Configuration)) func() {
 	return func() {
-		f(sch.Options)
+		f(configuration)
 	}
 }

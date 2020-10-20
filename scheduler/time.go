@@ -1,19 +1,18 @@
 package scheduler
 
 import (
-	"github.com/Jarnpher553/gron/xtime"
 	"time"
 )
 
 const (
 	//Second has 1 * 1e9 nanoseconds
-	Second time.Duration = xtime.Second
+	Second time.Duration = time.Second
 	//Minute has 60 seconds
-	Minute time.Duration = xtime.Minute
+	Minute time.Duration = time.Minute
 	//Hour has 60 minutes
-	Hour time.Duration = xtime.Hour
+	Hour time.Duration = time.Hour
 	//Day has 24 hours
-	Day time.Duration = xtime.Day
+	Day time.Duration = time.Hour * 24
 	//Week has 7 days
-	Week time.Duration = xtime.Week
+	Week time.Duration = Day * 7
 )
