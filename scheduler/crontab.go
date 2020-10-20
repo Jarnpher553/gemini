@@ -19,7 +19,7 @@ type Configuration struct {
 	redis  *redis.RdClient
 	repo   *repo.Repository
 	mgo    *mongo.MgoClient
-	Custom interface{}
+	custom interface{}
 }
 
 type Conf func(*CronTab)
@@ -46,8 +46,24 @@ func Mongo(mg *mongo.MgoClient) Conf {
 
 func Custom(custom interface{}) Conf {
 	return func(ct *CronTab) {
-		ct.conf.Custom = custom
+		ct.conf.custom = custom
 	}
+}
+
+func (c *Configuration) Redis() *redis.RdClient {
+	return c.redis
+}
+
+func (c *Configuration) Repo() *repo.Repository {
+	return c.repo
+}
+
+func (c *Configuration) Mongo() *mongo.MgoClient {
+	return c.mgo
+}
+
+func (c *Configuration) Custom() interface{} {
+	return c.custom
 }
 
 func Bind(conf ...Conf) {
