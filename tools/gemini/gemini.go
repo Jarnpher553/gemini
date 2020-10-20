@@ -322,7 +322,7 @@ import (
 	"github.com/Jarnpher553/gemini/scheduler"
 )
 
-func demo(ops *scheduler.Options){
+func demo(conf *scheduler.Configuration){
 	//Doing something...
 }
 `)
