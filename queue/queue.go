@@ -141,8 +141,8 @@ func Publish(name string, payload interface{}) error {
 	return nil
 }
 
-type Func func(rmq.Delivery, *Configuration)
-type FuncBatch func(rmq.Deliveries, *Configuration)
+type Func func(Delivery, *Configuration)
+type FuncBatch func(Deliveries, *Configuration)
 type BatchConsumerFunc func(deliveries rmq.Deliveries)
 type AssignFunc func() error
 
