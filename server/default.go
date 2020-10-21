@@ -81,8 +81,6 @@ func Startup(startup func(*DefaultServer) error) Option {
 	}
 }
 
-
-
 func (s *DefaultServer) Serve(r *router.Router) {
 	s.Handler = r
 }
@@ -145,7 +143,7 @@ func (s *DefaultServer) Run() {
 	go func() {
 		s.logger.Info(log.Message("start server"), []zapcore.Field{zap.String("name", s.name), zap.String("env", s.env), zap.String("addr", s.Server.Addr), zap.String("scheme", "http")}...)
 
-		if err := s.ListenAndServe(); err != nil {
+		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			s.logger.Fatal(log.Message(err))
 		}
 	}()
@@ -162,8 +160,6 @@ func (s *DefaultServer) Run() {
 	if s.Registry != nil {
 		_ = s.deregister()
 	}
-
-
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
