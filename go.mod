@@ -2,8 +2,8 @@ module github.com/Jarnpher553/gemini
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
-	github.com/Jarnpher553/gron v0.0.0-20200109095312-63398f60d047
 	github.com/Jarnpher553/viper v1.4.1-0.20190619031735-b954551383d3
+	github.com/adjust/rmq/v3 v3.0.0
 	github.com/armon/go-metrics v0.0.0-20190430140413-ec5e00d3c878 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eclipse/paho.mqtt.golang v1.2.0
@@ -40,8 +40,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.2.1
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
-	github.com/robfig/cron/v3 v3.0.0 // indirect
-	github.com/roylee0704/gron v0.0.0-20160621042432-e78485adab46 // indirect
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/xid v1.2.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/segmentio/ksuid v1.0.2
