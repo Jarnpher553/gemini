@@ -143,7 +143,7 @@ func Assign(queueName string, prefetchLimit int64, duration time.Duration, f Fun
 		return err
 	}
 
-	if err := pushQueue(queueName, q, pushQueueFunc...); err != nil {
+	if err := pushQueue(queueName, q, prefetchLimit, duration, pushQueueFunc...); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func AssignBatch(queueName string, prefetchLimit int64, duration time.Duration, 
 		return err
 	}
 
-	if err := pushQueue(queueName, q, pushQueueFunc...); err != nil {
+	if err := pushQueue(queueName, q, prefetchLimit, duration, pushQueueFunc...); err != nil {
 		return err
 	}
 
@@ -220,7 +220,7 @@ func StopAllConsuming() error {
 	return nil
 }
 
-func pushQueue(queueName string, q rmq.Queue, pushQueueFunc ...Func) error {
+func pushQueue(queueName string, q rmq.Queue, prefetchLimit int64, duration time.Duration, pushQueueFunc ...Func) error {
 	var sq rmq.Queue
 	sq = q
 	for i, f := range pushQueueFunc {
@@ -229,6 +229,12 @@ func pushQueue(queueName string, q rmq.Queue, pushQueueFunc ...Func) error {
 			return err
 		}
 		sq.SetPushQueue(pq)
+
+		err = pq.StartConsuming(prefetchLimit, duration)
+		if err != nil {
+			return err
+		}
+
 		_, err = pq.AddConsumerFunc(fmt.Sprintf("%s-%s-%d", queueName, "pushQ", i), decorator(conn.conf, f))
 		if err != nil {
 			return err
