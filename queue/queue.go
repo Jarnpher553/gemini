@@ -192,7 +192,7 @@ func decoratorBatch(configuration *Configuration, f func(rmq.Deliveries, *Config
 func startClean() {
 	cleaner := rmq.NewCleaner(conn.conn)
 
-	for range time.Tick(time.Second) {
+	for range time.Tick(time.Minute) {
 		returned, err := cleaner.Clean()
 		if err != nil {
 			logger.With(zap.String("err", err.Error())).Error("clean")
