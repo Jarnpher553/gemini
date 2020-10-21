@@ -55,7 +55,7 @@ func Run() {
 			for {
 				select {
 				case <-delay.stop.Done():
-					delay.logger.Info(log.Message(k, "stopped"))
+					delay.logger.Sugar().Info(log.Message(k, "stopped"))
 					break For
 				default:
 					<-time.After(100 * time.Millisecond)
