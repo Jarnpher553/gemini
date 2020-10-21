@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"github.com/Jarnpher553/gemini/util/addr"
 	"github.com/gin-gonic/gin"
@@ -79,6 +80,8 @@ func Startup(startup func(*DefaultServer) error) Option {
 		server.startup = startup
 	}
 }
+
+
 
 func (s *DefaultServer) Serve(r *router.Router) {
 	s.Handler = r
@@ -159,6 +162,15 @@ func (s *DefaultServer) Run() {
 	if s.Registry != nil {
 		_ = s.deregister()
 	}
+
+
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		s.logger.With(zap.String("err", err.Error())).Fatal("server forced to shutdown")
+	}
+	s.logger.Info("server exiting")
 }
 
 func (s *DefaultServer) register() []error {
