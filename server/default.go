@@ -30,6 +30,7 @@ type DefaultServer struct {
 	env     string
 	logger  *log.ZapLogger
 	startup func(*DefaultServer) error
+	release func() error
 }
 
 type Option func(server *DefaultServer)
@@ -78,6 +79,12 @@ func Env(env string) Option {
 func Startup(startup func(*DefaultServer) error) Option {
 	return func(server *DefaultServer) {
 		server.startup = startup
+	}
+}
+
+func Release(release func() error) Option {
+	return func(server *DefaultServer) {
+		server.release = release
 	}
 }
 
@@ -159,6 +166,12 @@ func (s *DefaultServer) Run() {
 	<-quit
 	if s.Registry != nil {
 		_ = s.deregister()
+	}
+
+	if s.release != nil {
+		if err := s.release(); err != nil {
+			s.logger.Fatal(err.Error())
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
