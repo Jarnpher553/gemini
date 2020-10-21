@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var conn = &RedisMessageConn{conf: &Configuration{}, openQueues: cmap.New()}
+var conn = &RedisMessageConn{name: "conn", conf: &Configuration{cleanerTick: 10 * time.Second}, openQueues: cmap.New(), assign: make([]AssignFunc, 0)}
 var logger = log.Logger.Mark("rmq")
 
 type RedisMessageConn struct {
@@ -20,13 +20,15 @@ type RedisMessageConn struct {
 	name       string
 	conf       *Configuration
 	openQueues cmap.ConcurrentMap
+	assign     []AssignFunc
 }
 
 type Configuration struct {
-	redis  *redis.RdClient
-	repo   *repo.Repository
-	mgo    *mongo.MgoClient
-	custom interface{}
+	redis       *redis.RdClient
+	repo        *repo.Repository
+	mgo         *mongo.MgoClient
+	custom      interface{}
+	cleanerTick time.Duration
 }
 
 func Redis(rd *redis.RdClient) Conf {
@@ -59,6 +61,12 @@ func Name(name string) Conf {
 	}
 }
 
+func CleanerTick(duration time.Duration) Conf {
+	return func(messageConn *RedisMessageConn) {
+		messageConn.conf.cleanerTick = duration
+	}
+}
+
 func (c *Configuration) Redis() *redis.RdClient {
 	return c.redis
 }
@@ -75,11 +83,13 @@ func (c *Configuration) Custom() interface{} {
 	return c.custom
 }
 
+func (c *Configuration) CleanerTick() time.Duration {
+	return c.cleanerTick
+}
+
 type Conf func(*RedisMessageConn)
 
 func Bind(conf ...Conf) {
-	conn.name = "rmq"
-
 	for _, v := range conf {
 		v(conn)
 	}
@@ -94,7 +104,13 @@ func Bind(conf ...Conf) {
 		logger.Fatal("can not open connection")
 	}
 
-	go startClean()
+	for _, v := range conn.assign {
+		if err := v(); err != nil {
+			logger.Fatal(err.Error())
+		}
+	}
+
+	go startClean(conn.conf.cleanerTick)
 }
 
 func queue(name string) (rmq.Queue, error) {
@@ -128,53 +144,58 @@ func Publish(name string, payload interface{}) error {
 type Func func(rmq.Delivery, *Configuration)
 type FuncBatch func(rmq.Deliveries, *Configuration)
 type BatchConsumerFunc func(deliveries rmq.Deliveries)
+type AssignFunc func() error
 
 func (batchConsumerFunc BatchConsumerFunc) Consume(delivery rmq.Deliveries) {
 	batchConsumerFunc(delivery)
 }
 
-func Assign(queueName string, prefetchLimit int64, duration time.Duration, f Func, pushQueueFunc ...Func) error {
-	q, err := queue(queueName)
-	if err != nil {
-		return err
-	}
-	err = q.StartConsuming(prefetchLimit, duration)
-	if err != nil {
-		return err
-	}
+func Assign(queueName string, prefetchLimit int64, duration time.Duration, f Func, pushQueueFunc ...Func) {
+	conn.assign = append(conn.assign, func() error {
+		q, err := queue(queueName)
+		if err != nil {
+			return err
+		}
+		err = q.StartConsuming(prefetchLimit, duration)
+		if err != nil {
+			return err
+		}
 
-	if err := pushQueue(queueName, q, prefetchLimit, duration, pushQueueFunc...); err != nil {
-		return err
-	}
+		if err := pushQueue(queueName, q, prefetchLimit, duration, pushQueueFunc...); err != nil {
+			return err
+		}
 
-	_, err = q.AddConsumerFunc(queueName+"-consumer", decorator(conn.conf, f))
-	if err != nil {
-		return err
-	}
+		_, err = q.AddConsumerFunc(queueName+"-consumer", decorator(conn.conf, f))
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return nil
+	})
 }
 
-func AssignBatch(queueName string, prefetchLimit int64, duration time.Duration, batchSize int64, timeout time.Duration, f FuncBatch, pushQueueFunc ...Func) error {
-	q, err := queue(queueName)
-	if err != nil {
-		return err
-	}
-	err = q.StartConsuming(prefetchLimit, duration)
-	if err != nil {
-		return err
-	}
+func AssignBatch(queueName string, prefetchLimit int64, duration time.Duration, batchSize int64, timeout time.Duration, f FuncBatch, pushQueueFunc ...Func) {
+	conn.assign = append(conn.assign, func() error {
+		q, err := queue(queueName)
+		if err != nil {
+			return err
+		}
+		err = q.StartConsuming(prefetchLimit, duration)
+		if err != nil {
+			return err
+		}
 
-	if err := pushQueue(queueName, q, prefetchLimit, duration, pushQueueFunc...); err != nil {
-		return err
-	}
+		if err := pushQueue(queueName, q, prefetchLimit, duration, pushQueueFunc...); err != nil {
+			return err
+		}
 
-	_, err = q.AddBatchConsumer(queueName+"-consumer", batchSize, timeout, BatchConsumerFunc(decoratorBatch(conn.conf, f)))
-	if err != nil {
-		return err
-	}
+		_, err = q.AddBatchConsumer(queueName+"-consumer", batchSize, timeout, BatchConsumerFunc(decoratorBatch(conn.conf, f)))
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return nil
+	})
 }
 
 func decorator(configuration *Configuration, f func(rmq.Delivery, *Configuration)) func(rmq.Delivery) {
@@ -189,10 +210,10 @@ func decoratorBatch(configuration *Configuration, f func(rmq.Deliveries, *Config
 	}
 }
 
-func startClean() {
+func startClean(duration time.Duration) {
 	cleaner := rmq.NewCleaner(conn.conn)
 
-	for range time.Tick(time.Minute) {
+	for range time.Tick(duration) {
 		returned, err := cleaner.Clean()
 		if err != nil {
 			logger.With(zap.String("err", err.Error())).Error("clean")
@@ -235,7 +256,7 @@ func pushQueue(queueName string, q rmq.Queue, prefetchLimit int64, duration time
 			return err
 		}
 
-		_, err = pq.AddConsumerFunc(fmt.Sprintf("%s-%s-%d", queueName, "pushQ", i), decorator(conn.conf, f))
+		_, err = pq.AddConsumerFunc(fmt.Sprintf("%s-%s-%d-consumer", queueName, "pushQ", i), decorator(conn.conf, f))
 		if err != nil {
 			return err
 		}
@@ -245,15 +266,15 @@ func pushQueue(queueName string, q rmq.Queue, prefetchLimit int64, duration time
 	return nil
 }
 
-type QueueType int
+type KeyFlag int
 
 const (
-	Rejected QueueType = iota
+	Rejected KeyFlag = iota
 	Ready
 	Unacked
 )
 
-func Purge(queueName string, qt QueueType) error {
+func Purge(queueName string, qt KeyFlag) error {
 	q, err := queue(queueName)
 	if err != nil {
 		return err
@@ -269,7 +290,7 @@ func Purge(queueName string, qt QueueType) error {
 	}
 }
 
-func Return(queueName string, qt QueueType, max int64) error {
+func Return(queueName string, qt KeyFlag, max int64) error {
 	q, err := queue(queueName)
 	if err != nil {
 		return err
@@ -284,7 +305,3 @@ func Return(queueName string, qt QueueType, max int64) error {
 		return nil
 	}
 }
-
-//func demo(delivery rmq.Delivery){
-//	delivery.Ack()
-//}
