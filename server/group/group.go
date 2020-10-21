@@ -9,7 +9,12 @@ var g errgroup.Group
 
 var logger = log.Logger.Mark("group")
 
-type G func() error
+func G(f func()) func() error {
+	return func() error {
+		f()
+		return nil
+	}
+}
 
 func Attach(f func() error) {
 	g.Go(f)
