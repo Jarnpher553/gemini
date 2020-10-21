@@ -94,7 +94,7 @@ func Bind(conf ...Conf) {
 		logger.Fatal("can not open connection")
 	}
 
-	startClean()
+	go startClean()
 }
 
 func queue(name string) (rmq.Queue, error) {
