@@ -198,13 +198,16 @@ func AssignBatch(queueName string, prefetchLimit int64, duration time.Duration, 
 	})
 }
 
-func decorator(configuration *Configuration, f func(rmq.Delivery, *Configuration)) func(rmq.Delivery) {
+type Delivery = rmq.Delivery
+type Deliveries = rmq.Deliveries
+
+func decorator(configuration *Configuration, f func(Delivery, *Configuration)) func(rmq.Delivery) {
 	return func(delivery rmq.Delivery) {
 		f(delivery, configuration)
 	}
 }
 
-func decoratorBatch(configuration *Configuration, f func(rmq.Deliveries, *Configuration)) func(rmq.Deliveries) {
+func decoratorBatch(configuration *Configuration, f func(Deliveries, *Configuration)) func(rmq.Deliveries) {
 	return func(delivery rmq.Deliveries) {
 		f(delivery, configuration)
 	}
