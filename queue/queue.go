@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var conn = &RedisMessageConn{conf: &Configuration{}}
+var conn = &RedisMessageConn{conf: &Configuration{}, openQueues: cmap.New()}
 var logger = log.Logger.Mark("rmq")
 
 type RedisMessageConn struct {
