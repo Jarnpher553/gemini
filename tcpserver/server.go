@@ -109,9 +109,9 @@ func (s *TcpServer) Serve(handler EventService) {
 	v := reflect.ValueOf(handler)
 	switch v.Kind() {
 	case reflect.Struct:
-		reflect.ValueOf(handler).FieldByName("Service").Set(reflect.ValueOf(service))
+		v.Addr().Elem().FieldByName("Service").Set(reflect.ValueOf(service))
 	case reflect.Ptr:
-		reflect.ValueOf(handler).Elem().FieldByName("Service").Set(reflect.ValueOf(service))
+		v.Elem().FieldByName("Service").Set(reflect.ValueOf(service))
 	}
 
 	s.eh = handler
