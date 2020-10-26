@@ -17,7 +17,7 @@ type Action = gnet.Action
 
 type Server = gnet.Server
 
-type EventHandler interface {
+type EventService interface {
 	OnInitComplete(server Server) (action Action)
 
 	OnShutdown(server Server)
@@ -33,14 +33,23 @@ type EventHandler interface {
 	Tick() (delay time.Duration, action Action)
 }
 
-type Service = gnet.EventServer
+type Service struct {
+	*gnet.EventServer
+	logger *log.ZapLogger
+}
+
+func NewService(logger *log.ZapLogger) *Service {
+	return &Service{
+		EventServer: &gnet.EventServer{},
+	}
+}
 
 type TcpServer struct {
 	name   string
 	logger *log.ZapLogger
 	addr   string
 	opt    gnet.Options
-	eh     EventHandler
+	eh     EventService
 }
 
 type Option func(*TcpServer)
@@ -101,6 +110,7 @@ func LockOSThread(lockOSThread bool) Option {
 
 func New(opts ...Option) *TcpServer {
 	name := "tcpserver-" + random.RandomString(6)
+
 	s := &TcpServer{
 		logger: &log.ZapLogger{Logger: log.Logger.Mark("tcpserver").With(zap.String("name", name))},
 		name:   name,
@@ -111,10 +121,13 @@ func New(opts ...Option) *TcpServer {
 		option(s)
 	}
 
+	s.opt.Logger = s.logger.Sugar()
+
 	return s
 }
 
-func (s *TcpServer) Serve(handler EventHandler) {
+func (s *TcpServer) Serve(handler EventService) {
+	handler.(*Service).logger = s.logger
 	s.eh = handler
 }
 
