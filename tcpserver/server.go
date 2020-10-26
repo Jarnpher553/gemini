@@ -38,7 +38,7 @@ type Service struct {
 	logger *log.ZapLogger
 }
 
-func NewService(logger *log.ZapLogger) *Service {
+func NewService() *Service {
 	return &Service{
 		EventServer: &gnet.EventServer{},
 	}
