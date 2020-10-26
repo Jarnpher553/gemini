@@ -17,33 +17,6 @@ type Action = gnet.Action
 
 type Server = gnet.Server
 
-type EventService interface {
-	OnInitComplete(server Server) (action Action)
-
-	OnShutdown(server Server)
-
-	OnOpened(c Conn) (out []byte, action Action)
-
-	OnClosed(c Conn, err error) (action Action)
-
-	PreWrite()
-
-	React(frame []byte, c Conn) (out []byte, action Action)
-
-	Tick() (delay time.Duration, action Action)
-}
-
-type Service struct {
-	*gnet.EventServer
-	logger *log.ZapLogger
-}
-
-func NewService() *Service {
-	return &Service{
-		EventServer: &gnet.EventServer{},
-	}
-}
-
 type TcpServer struct {
 	name   string
 	logger *log.ZapLogger
