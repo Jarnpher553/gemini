@@ -108,9 +108,16 @@ func (s *TcpServer) Serve(handler EventService) {
 
 	v := reflect.ValueOf(handler)
 	switch v.Kind() {
-	case reflect.Struct:
-		v.FieldByName("Service").Elem().Set(reflect.ValueOf(service))
+	default:
+		s.logger.Fatal("EventService is not a pointor")
 	case reflect.Ptr:
+		field := v.Elem().FieldByName("Service")
+		if !field.IsValid() {
+			s.logger.Fatal("EventService does not contains Service field")
+		}
+		if field.Kind() != reflect.Ptr {
+			s.logger.Fatal(" EventService's Service field is not *tcpserver.Service")
+		}
 		v.Elem().FieldByName("Service").Set(reflect.ValueOf(service))
 	}
 
