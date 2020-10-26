@@ -26,13 +26,3 @@ type Service struct {
 	*gnet.EventServer
 	logger *log.ZapLogger
 }
-
-func NewService() *Service {
-	return &Service{
-		EventServer: &gnet.EventServer{},
-	}
-}
-
-func (s *Service) Logger() *log.ZapLogger {
-	return s.logger
-}

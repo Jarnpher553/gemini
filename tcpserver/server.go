@@ -101,11 +101,17 @@ func New(opts ...Option) *TcpServer {
 }
 
 func (s *TcpServer) Serve(handler EventService) {
+	service := &Service{
+		EventServer: &gnet.EventServer{},
+		logger:      s.logger,
+	}
+
 	v := reflect.ValueOf(handler)
-	if v.Type().Kind() == reflect.Struct {
-		v.FieldByName("logger").Set(reflect.ValueOf(s.logger))
-	} else {
-		v.Elem().FieldByName("logger").Set(reflect.ValueOf(s.logger))
+	switch v.Kind() {
+	case reflect.Struct:
+		reflect.ValueOf(handler).FieldByName("Service").Set(reflect.ValueOf(service))
+	case reflect.Ptr:
+		reflect.ValueOf(handler).Elem().FieldByName("Service").Set(reflect.ValueOf(service))
 	}
 
 	s.eh = handler
