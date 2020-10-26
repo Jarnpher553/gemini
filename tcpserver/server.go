@@ -6,6 +6,7 @@ import (
 	"github.com/Jarnpher553/gemini/util/random"
 	"github.com/panjf2000/gnet"
 	"go.uber.org/zap"
+	"reflect"
 	"time"
 )
 
@@ -100,7 +101,8 @@ func New(opts ...Option) *TcpServer {
 }
 
 func (s *TcpServer) Serve(handler EventService) {
-	handler.(*Service).logger = s.logger
+	reflect.ValueOf(handler).Elem().FieldByName("logger").Set(reflect.ValueOf(s.logger))
+
 	s.eh = handler
 }
 
