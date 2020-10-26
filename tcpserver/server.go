@@ -101,7 +101,7 @@ func New(opts ...Option) *TcpServer {
 }
 
 func (s *TcpServer) Serve(handler EventService) {
-	reflect.ValueOf(handler).Elem().FieldByName("logger").Set(reflect.ValueOf(s.logger))
+	reflect.ValueOf(handler).FieldByName("logger").Set(reflect.ValueOf(s.logger))
 
 	s.eh = handler
 }
