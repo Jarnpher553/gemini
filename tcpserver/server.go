@@ -33,9 +33,10 @@ type EventHandler interface {
 	Tick() (delay time.Duration, action Action)
 }
 
+type Service = gnet.EventServer
+
 type TcpServer struct {
-	name string
-	*gnet.EventServer
+	name   string
 	logger *log.ZapLogger
 	addr   string
 	opt    gnet.Options
@@ -101,10 +102,9 @@ func LockOSThread(lockOSThread bool) Option {
 func New(opts ...Option) *TcpServer {
 	name := "tcpserver-" + random.RandomString(6)
 	s := &TcpServer{
-		EventServer: &gnet.EventServer{},
-		logger:      &log.ZapLogger{Logger: log.Logger.Mark("tcpserver").With(zap.String("name", name))},
-		name:        name,
-		opt:         gnet.Options{},
+		logger: &log.ZapLogger{Logger: log.Logger.Mark("tcpserver").With(zap.String("name", name))},
+		name:   name,
+		opt:    gnet.Options{},
 	}
 
 	for _, option := range opts {
