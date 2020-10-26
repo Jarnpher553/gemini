@@ -26,3 +26,7 @@ type Service struct {
 	*gnet.EventServer
 	logger *log.ZapLogger
 }
+
+func (s *Service) Logger() *log.ZapLogger {
+	return s.logger
+}
