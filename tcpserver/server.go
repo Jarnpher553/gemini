@@ -100,10 +100,13 @@ func New(opts ...Option) *TcpServer {
 	return s
 }
 
-func (s *TcpServer) Serve(handler EventService) {
+func (s *TcpServer) Serve(handler EventService, withPool bool) {
 	service := &Service{
 		EventServer: &gnet.EventServer{},
 		logger:      s.logger,
+	}
+	if withPool {
+		service.pool = Pool()
 	}
 
 	v := reflect.ValueOf(handler)

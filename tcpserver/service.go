@@ -25,6 +25,7 @@ type EventService interface {
 type Service struct {
 	*gnet.EventServer
 	logger *log.ZapLogger
+	pool   *GoroutinePool
 }
 
 func (s *Service) Logger() *log.ZapLogger {
