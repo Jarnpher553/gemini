@@ -19,11 +19,12 @@ type Action = gnet.Action
 type Server = gnet.Server
 
 type TcpServer struct {
-	name   string
-	logger *log.ZapLogger
-	addr   string
-	opt    gnet.Options
-	eh     EventService
+	name    string
+	logger  *log.ZapLogger
+	addr    string
+	opt     gnet.Options
+	eh      EventService
+	release []func() error
 }
 
 type Option func(*TcpServer)
@@ -86,9 +87,10 @@ func New(opts ...Option) *TcpServer {
 	name := "tcpserver-" + random.RandomString(6)
 
 	s := &TcpServer{
-		logger: &log.ZapLogger{Logger: log.Logger.Mark("tcpserver").With(zap.String("name", name))},
-		name:   name,
-		opt:    gnet.Options{},
+		logger:  &log.ZapLogger{Logger: log.Logger.Mark("tcpserver").With(zap.String("name", name))},
+		name:    name,
+		opt:     gnet.Options{},
+		release: make([]func() error, 0),
 	}
 
 	for _, option := range opts {
@@ -106,7 +108,11 @@ func (s *TcpServer) Serve(handler EventService, withPool bool) {
 		logger:      s.logger,
 	}
 	if withPool {
-		service.pool = Pool()
+		service.Pool = Pool()
+		s.release = append(s.release, func() error {
+			service.Pool.Release()
+			return nil
+		})
 	}
 
 	v := reflect.ValueOf(handler)
@@ -131,5 +137,8 @@ func (s *TcpServer) Run() {
 	err := gnet.Serve(s.eh, fmt.Sprintf("tcp://%s", s.addr), gnet.WithOptions(s.opt))
 	if err != nil {
 		s.logger.Fatal(err.Error())
+	}
+	for _, r := range s.release {
+		_ = r()
 	}
 }
