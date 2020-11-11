@@ -6,7 +6,7 @@ require (
 	github.com/adjust/rmq/v3 v3.0.0
 	github.com/armon/go-metrics v0.0.0-20190430140413-ec5e00d3c878 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/eclipse/paho.mqtt.golang v1.2.0
+	github.com/eclipse/paho.mqtt.golang v1.2.1-0.20201101082912-47bdbb57492f
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
