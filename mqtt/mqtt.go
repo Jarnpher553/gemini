@@ -192,7 +192,7 @@ func HTTPHeaders(h http.Header) Option {
 	}
 }
 
-type WsOptions MQTT.WebsocketOptions
+type WsOptions = MQTT.WebsocketOptions
 
 func WebsocketOptions(w *WsOptions) Option {
 	return func(options *MQTT.ClientOptions) {
