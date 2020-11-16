@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"github.com/Jarnpher553/gemini/log"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -197,6 +198,30 @@ type WsOptions = MQTT.WebsocketOptions
 func WebsocketOptions(w *WsOptions) Option {
 	return func(options *MQTT.ClientOptions) {
 		options.SetWebsocketOptions(w)
+	}
+}
+
+type Logger struct {
+	*zap.SugaredLogger
+}
+
+func (l *Logger) Printf(format string, v ...interface{}) {
+	l.Infof(format, v...)
+}
+
+func (l *Logger) Println(v ...interface{}) {
+	l.Info(v...)
+}
+
+func LogMode(a bool) Option {
+	return func(options *MQTT.ClientOptions) {
+		if a {
+			logger := log.Logger.Mark("paho.mqtt").Sugar()
+			MQTT.DEBUG = &Logger{logger.With(zap.String("paho.mqtt.level", "debug"))}
+			MQTT.ERROR = &Logger{logger.With(zap.String("paho.mqtt.level", "error"))}
+			MQTT.WARN = &Logger{logger.With(zap.String("paho.mqtt.level", "warn"))}
+			MQTT.CRITICAL = &Logger{logger.With(zap.String("paho.mqtt.level", "critical"))}
+		}
 	}
 }
 
