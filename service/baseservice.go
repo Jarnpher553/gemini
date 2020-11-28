@@ -52,6 +52,8 @@ type IBaseService interface {
 
 	CustomContext(string) interface{}
 	SetCustomContext(string, interface{})
+
+	Area() string
 }
 
 type BaseService struct {
@@ -244,6 +246,10 @@ func (s *BaseService) SetCustomContext(key string, value interface{}) {
 		s.customContext = make(map[string]interface{})
 	}
 	s.customContext[key] = value
+}
+
+func (s *BaseService) Area() string {
+	return ""
 }
 
 func (s *BaseService) Get(handler *Handler) HandlerFunc {

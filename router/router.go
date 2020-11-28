@@ -25,6 +25,8 @@ type Router struct {
 	services []service.IBaseService
 	static   string
 	template string
+	area     bool
+	groups   map[string]*gin.RouterGroup
 }
 
 var zapLogger = log.Zap.Mark("gin")
@@ -34,7 +36,7 @@ type Option func(router *Router)
 // New 构造函数
 //		permission 角色鉴权中间件
 func New(opts ...Option) *Router {
-	r := &Router{}
+	r := &Router{groups: make(map[string]*gin.RouterGroup)}
 
 	for _, opt := range opts {
 		opt(r)
@@ -51,6 +53,12 @@ func HTMLGlod(pattern string) Option {
 func StaticFs(path string) Option {
 	return func(router *Router) {
 		router.static = path
+	}
+}
+
+func Area(use bool) Option {
+	return func(router *Router) {
+		router.area = use
 	}
 }
 
@@ -124,7 +132,7 @@ func (r *Router) cors() {
 	}))
 }
 
-func (r *Router) Assign(service ...service.IBaseService) *Router{
+func (r *Router) Assign(service ...service.IBaseService) *Router {
 	r.Lock()
 	defer r.Unlock()
 	r.services = append(r.services, service...)
@@ -143,6 +151,25 @@ func (r *Router) doRegister(srv service.IBaseService) {
 
 	serviceVal := reflect.ValueOf(srv)
 
+	useArea := r.area
+	var localRouter *gin.RouterGroup
+	if useArea {
+		area := srv.Area()
+		if area == "" {
+			serviceName := serviceType.String()
+			area = strings.TrimPrefix(strings.Split(serviceName, ".")[0], "*")
+		}
+		g, ok := r.groups[area]
+		if ok {
+			localRouter = g
+		} else {
+			localRouter = r.Group(area)
+			r.groups[area] = localRouter
+		}
+	} else {
+		localRouter = &r.Engine.RouterGroup
+	}
+
 	node := srv.Node()
 	name := node.ServerName + "." + node.Name
 
@@ -157,13 +184,12 @@ func (r *Router) doRegister(srv service.IBaseService) {
 		middleware = append(middleware, service.Wrapper(m(srv)))
 	}
 	//构建服务对应路由
-	group := r.Group(fmt.Sprintf("%s", node.Name))
+	group := localRouter.Group(fmt.Sprintf("%s", node.Name))
 
 	//服务注册中间件
 	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Interceptor().Limiter)(srv)))
 	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Interceptor().Cb)(srv)))
 	group.Use(service.Wrapper(service.MetricMiddleware(srv.Interceptor().Metric)(srv)))
-	//group.Use(service.Wrapper(service.ExtractHttpMiddleware()(srv)))
 	group.Use(service.Wrapper(service.TracerMiddleware(srv.Interceptor().Tracer, name)(srv)))
 
 	//注册自定义中间件
