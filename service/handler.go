@@ -10,6 +10,9 @@ type Handler struct {
 	GinMiddleware []gin.HandlerFunc
 	RelativePath  string
 	HttpMethod    string
+	BasePath      string
+	UseArea       bool
+	AreaName      string
 }
 
 func (h *Handler) UseMiddleware(m ...Middleware) {
@@ -51,4 +54,16 @@ func (h *Handler) Patch(path string) {
 
 func (h *Handler) Head(path string) {
 	h.Route("HEAD", path)
+}
+
+func (h *Handler) BaseRoute(path string) {
+	h.BasePath = path
+}
+
+func (h *Handler) Area(use bool) {
+	h.UseArea = use
+}
+
+func (h *Handler) AreaN(name string) {
+	h.AreaName = name
 }

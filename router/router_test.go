@@ -9,8 +9,9 @@ type TestService struct {
 	*service.BaseService
 }
 
-func (s *TestService) Area() string {
-	return ""
+func (s *TestService) Use(handler *service.Handler) {
+	handler.AreaN("a")
+	handler.BaseRoute("wo")
 }
 
 func TestRouter_doRegister(t *testing.T) {

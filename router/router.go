@@ -27,6 +27,7 @@ type Router struct {
 	template string
 	area     bool
 	groups   map[string]*gin.RouterGroup
+	cors     gin.HandlerFunc
 }
 
 var zapLogger = log.Zap.Mark("gin")
@@ -53,6 +54,14 @@ func HTMLGlod(pattern string) Option {
 func StaticFs(path string) Option {
 	return func(router *Router) {
 		router.static = path
+	}
+}
+
+type CorsConfig = cors.Config
+
+func Cors(config CorsConfig) Option {
+	return func(router *Router) {
+		router.cors = cors.New(config)
 	}
 }
 
@@ -104,7 +113,7 @@ func (r *Router) rootGroup(group string) {
 	r.RouterGroup = *(routerGroup)
 
 	//挂载跨域
-	r.cors()
+	r.useCors()
 
 	//注册静态文件路径
 	if r.static != "" {
@@ -121,15 +130,19 @@ func (r *Router) registerStatic(path string) {
 	r.Static("/static", path)
 }
 
-func (r *Router) cors() {
-	r.Use(cors.New(cors.Config{
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "access-token"},
-		AllowCredentials: false,
-		AllowAllOrigins:  true,
-		ExposeHeaders:    []string{"Content-Disposition"},
-		MaxAge:           12 * time.Hour,
-	}))
+func (r *Router) useCors() {
+	if r.cors != nil {
+		r.Use(r.cors)
+	} else {
+		r.Use(cors.New(cors.Config{
+			AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+			AllowCredentials: false,
+			AllowAllOrigins:  true,
+			ExposeHeaders:    []string{"Content-Disposition"},
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 }
 
 func (r *Router) Assign(service ...service.IBaseService) *Router {
@@ -151,10 +164,16 @@ func (r *Router) doRegister(srv service.IBaseService) {
 
 	serviceVal := reflect.ValueOf(srv)
 
-	useArea := r.area
+	node := srv.Node()
+
+	//获取服务全局中间件
+	var handler service.Handler
+	handler.UseArea = r.area
+	srv.Use(&handler)
+
 	var localRouter *gin.RouterGroup
-	if useArea {
-		area := srv.Area()
+	if r.area && handler.UseArea {
+		area := handler.AreaName
 		if area == "" {
 			serviceName := serviceType.String()
 			area = strings.TrimPrefix(strings.Split(serviceName, ".")[0], "*")
@@ -170,12 +189,6 @@ func (r *Router) doRegister(srv service.IBaseService) {
 		localRouter = &r.Engine.RouterGroup
 	}
 
-	node := srv.Node()
-	name := node.ServerName + "." + node.Name
-
-	//获取服务全局中间件
-	var handler service.Handler
-	srv.Use(&handler)
 	var middleware []gin.HandlerFunc
 	for _, h := range handler.GinMiddleware {
 		middleware = append(middleware, h)
@@ -183,14 +196,19 @@ func (r *Router) doRegister(srv service.IBaseService) {
 	for _, m := range handler.Middleware {
 		middleware = append(middleware, service.Wrapper(m(srv)))
 	}
+
+	basePath := handler.BasePath
+	if basePath == "" {
+		basePath = node.Name
+	}
 	//构建服务对应路由
-	group := localRouter.Group(fmt.Sprintf("%s", node.Name))
+	group := localRouter.Group(fmt.Sprintf("%s", basePath))
 
 	//服务注册中间件
 	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Interceptor().Limiter)(srv)))
 	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Interceptor().Cb)(srv)))
 	group.Use(service.Wrapper(service.MetricMiddleware(srv.Interceptor().Metric)(srv)))
-	group.Use(service.Wrapper(service.TracerMiddleware(srv.Interceptor().Tracer, name)(srv)))
+	group.Use(service.Wrapper(service.TracerMiddleware(srv.Interceptor().Tracer)(srv)))
 
 	//注册自定义中间件
 	group.Use(middleware...)

@@ -48,12 +48,12 @@ func MetricMiddleware(m *metric.Metric) Middleware {
 }
 
 // TracerMiddleware 服务跟踪中间件
-func TracerMiddleware(t *tracing.Tracer, name string) Middleware {
+func TracerMiddleware(t *tracing.Tracer) Middleware {
 	return func(srv IBaseService) HandlerFunc {
 		return func(context *Ctx) {
-			sc, _ := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(context.Request.Header))
+			sc, _ := t.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(context.Request.Header))
 
-			span := opentracing.StartSpan(srv.Node().ServerName+"."+srv.Node().Name,
+			span := t.StartSpan(srv.Node().ServerName+"."+srv.Node().Name,
 				opentracing.ChildOf(sc),
 				ext.SpanKindRPCServer,
 				opentracing.StartTime(time.Now()),
