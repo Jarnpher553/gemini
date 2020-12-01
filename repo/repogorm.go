@@ -84,7 +84,7 @@ func DbName(dbName string) Option {
 }
 
 // New 构造函数
-func New(options ...Option) *RepoGorm {
+func NewGrom(options ...Option) *RepoGorm {
 	repo := &RepoGorm{
 		Logger: log.Zap.Mark("repo"),
 	}
