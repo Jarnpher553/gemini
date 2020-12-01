@@ -254,13 +254,6 @@ func (r *Router) doRegister(srv service.IBaseService) {
 			path := matches[0][2]
 			if path != "" {
 				relativePath = strings.ToLower(path[0:1]) + path[1:]
-				if httpMethod == "GET" && relativePath == "list" {
-					relativePath = ""
-				} else if httpMethod == "DELETE" && relativePath == "batch" {
-					relativePath = ""
-				}
-			} else {
-				relativePath = ":id"
 			}
 		} else {
 			relativePath = handler.RelativePath
