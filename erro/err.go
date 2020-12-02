@@ -9,37 +9,50 @@ func (e *Err) Error() string {
 	return e.Msg
 }
 
+var (
+	successCode   int
+	isSuccessCode bool
+)
+
+func SetSuccess(code int) {
+	successCode = code
+	isSuccessCode = true
+}
+
+func Success() int {
+	if isSuccessCode {
+		return successCode
+	} else {
+		return ErrSuccess
+	}
+}
+
 // 错误码
 const (
 	ErrSuccess        = 200
 	ErrDefault        = 500
+	ErrReqContent     = 503
 	ErrBreaker        = 3000
 	ErrMaxRequest     = 3005
 	ErrRateLimiter    = 3001
 	ErrDelayLimiter   = 3002
 	ErrReserveLimiter = 3004
-	ErrAuthor         = 4003
-
-	//add custom code below
-	ErrFileMime   = 501
-	ErrNoFile     = 502
-	ErrReqContent = 503
-	ErrDbRead     = 504
-	ErrDbModify   = 505
-	ErrDbRemove   = 506
-	ErrUserName   = 507
-	ErrPassword   = 508
-	ErrPermission = 4001
-	ErrToken      = 510
-	ErrDbInsert   = 511
-	ErrTemplate   = 512
-	ErrImport     = 513
-	ErrExport     = 514
-	ErrNotExist   = 517
-	ErrClosed     = 519
-	ErrDb         = 520
-	ErrFileOpen   = 521
-	ErrFileParse  = 522
+	ErrAuthor         = 403
+	ErrFileMime       = 501
+	ErrNoFile         = 502
+	ErrDbRead         = 504
+	ErrDbModify       = 505
+	ErrDbRemove       = 506
+	ErrUserName       = 507
+	ErrPassword       = 508
+	ErrPermission     = 401
+	ErrToken          = 510
+	ErrDbInsert       = 511
+	ErrTemplate       = 512
+	ErrImport         = 513
+	ErrExport         = 514
+	ErrNotExist       = 517
+	ErrDb             = 520
 )
 
 // 错误码对应错误信息
@@ -56,20 +69,18 @@ var ErrMsg = map[int]string{
 	ErrNoFile:         "未上传文件",
 	ErrReqContent:     "请求参数有误",
 	ErrDbRead:         "查询失败",
-	ErrDbModify:       "更新失败",
+	ErrDbModify:       "修改失败",
 	ErrDbRemove:       "删除失败",
-	ErrDbInsert:       "新增失败",
+	ErrDbInsert:       "添加失败",
 	ErrUserName:       "用户名错误",
 	ErrPassword:       "密码错误",
 	ErrPermission:     "无操作权限",
 	ErrToken:          "令牌生成失败",
 	ErrTemplate:       "下载模板失败",
-	ErrImport:         "上传文件失败",
-	ErrExport:         "导出数据失败",
+	ErrImport:         "上传失败",
+	ErrExport:         "导出失败",
 	ErrNotExist:       "不存在记录",
-	ErrDb:             "数据库错误",
-	ErrFileOpen:       "文件读取失败",
-	ErrFileParse:      "文件解析失败",
+	ErrDb:             "数据库异常",
 }
 
 func Register(code int, msg string) {
