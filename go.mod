@@ -39,7 +39,7 @@ require (
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
 	github.com/openzipkin/zipkin-go v0.2.1
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6
-	github.com/panjf2000/gnet v1.3.0 // indirect
+	github.com/panjf2000/gnet v1.3.0
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/xid v1.2.1
@@ -54,6 +54,7 @@ require (
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.0.3
 	go.uber.org/zap v1.15.0
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20200819171115-d785dc25833f // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 	google.golang.org/grpc v1.27.0
@@ -64,4 +65,4 @@ require (
 	gopkg.in/resty.v1 v1.12.0
 )
 
-go 1.13
+go 1.15
