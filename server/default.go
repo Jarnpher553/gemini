@@ -100,7 +100,7 @@ func Default(options ...Option) IBaseServer {
 			//WriteTimeout:   10 * time.Second,
 			//MaxHeaderBytes: 1 << 20,
 		},
-		name:    "api",
+		name:    "",
 		logger:  log.Zap.Mark("server"),
 		runMode: gin.ReleaseMode,
 	}

@@ -23,6 +23,10 @@ func Wrapper(f HandlerFunc) gin.HandlerFunc {
 	}
 }
 
+func CustomResponseBody() {
+
+}
+
 type HandlerFunc func(*Ctx)
 
 func (c *Ctx) Csv(data []byte, filename string) {
@@ -41,7 +45,7 @@ func (c *Ctx) FileStream(data []byte, filename string) {
 }
 
 func (c *Ctx) Success(data interface{}) {
-	c.response(erro.ErrSuccess, data, nil, false)
+	c.response(erro.Success(), data, nil, false)
 }
 
 func (c *Ctx) Failure(code int, err error, actual ...bool) {
@@ -67,6 +71,9 @@ func (c *Ctx) response(code int, data interface{}, err error, actual bool) {
 		ErrMsg:    msg,
 		Timestamp: now.New().Unix(),
 		Data:      data,
+	}
+	if response.ErrCode == erro.Success() {
+		response.Success = true
 	}
 
 	log.Zap.Source(3).

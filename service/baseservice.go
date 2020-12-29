@@ -35,8 +35,8 @@ type IBaseService interface {
 
 	Use(*Handler)
 
-	Repo() *repo.Repository
-	SetRepo(*repo.Repository)
+	Repo() repo.Repository
+	SetRepo(repo.Repository)
 	Redis() *redis.RdClient
 	SetRedis(*redis.RdClient)
 	Mongo() *mongo.MgoClient
@@ -55,7 +55,7 @@ type IBaseService interface {
 }
 
 type BaseService struct {
-	repository  *repo.Repository
+	repository  repo.Repository
 	redisClient *redis.RdClient
 	mongoClient *mongo.MgoClient
 	client      *httpclient.ReqClient
@@ -84,7 +84,7 @@ type NodeInfo struct {
 
 type Option func(service IBaseService)
 
-func Repository(repository *repo.Repository) Option {
+func Repository(repository repo.Repository) Option {
 	return func(service IBaseService) {
 		service.SetRepo(repository)
 	}
@@ -219,11 +219,11 @@ func (s *BaseService) SetReg(reg *Registry) {
 	s.reg = reg
 }
 
-func (s *BaseService) Repo() *repo.Repository {
+func (s *BaseService) Repo() repo.Repository {
 	return s.repository
 }
 
-func (s *BaseService) SetRepo(repository *repo.Repository) {
+func (s *BaseService) SetRepo(repository repo.Repository) {
 	s.repository = repository
 }
 

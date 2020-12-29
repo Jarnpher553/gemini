@@ -5,6 +5,7 @@ type Response struct {
 	ErrCode   int         `json:"code"`
 	ErrMsg    string      `json:"msg"`
 	Timestamp int64       `json:"timestamp"`
+	Success   bool        `json:"success"`
 	Data      interface{} `json:"data"`
 }
 
