@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Jarnpher553/gemini/log"
 	"github.com/Jarnpher553/gemini/uuid"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sony/gobreaker"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -85,6 +87,7 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 					if err := recover(); err != nil {
 						action := strings.Split(ctx.Request.URL.Path, "/")
 						e = fmt.Errorf("%v service %s action %s", err, srv.Node().ServerName, action[3]+"."+action[4])
+						log.Logger.Error(log.Messagef("err info: %s, track: %s", e, string(debug.Stack())))
 					}
 				}()
 				ctx.Next()
@@ -100,6 +103,7 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 				case gobreaker.StateHalfOpen:
 					ctx.Failure(erro.ErrMaxRequest, err)
 				}
+				log.Logger.Error(log.Messagef("err info: %s, track: %s", err.Error(), string(debug.Stack())))
 				ctx.Abort()
 				return
 			}
