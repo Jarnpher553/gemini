@@ -50,9 +50,15 @@ func Release(release func() error) Option {
 	}
 }
 
-func Serve(r *router.Router) Option {
+func Router(r *router.Router) Option {
 	return func(server *DefaultServer) {
 		server.Handler = r
+	}
+}
+
+func Route(route func() *router.Router) Option {
+	return func(server *DefaultServer) {
+		server.Handler = route()
 	}
 }
 
