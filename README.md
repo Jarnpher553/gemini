@@ -53,7 +53,7 @@ func main() {
     // 实例化路由
     r := router.New()
     // 将服务注册进路由
-    r.InjectSlice(userService)
+    r.Assign(userService)
     
     // 实例化服务器
     srv := server.Default(server.Name("demo"), server.Env(env), server.RunMode(serverCf.GetString("runMode")), server.Router(r), server.Addr(serverCf.GetString("addr")))
