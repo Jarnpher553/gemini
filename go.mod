@@ -1,6 +1,7 @@
 module github.com/Jarnpher553/gemini
 
 require (
+	cloud.google.com/go v0.37.4 // indirect
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Jarnpher553/viper v1.4.1-0.20190619031735-b954551383d3
 	github.com/adjust/rmq/v3 v3.0.0
@@ -14,12 +15,12 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-redis/redis/v8 v8.3.1 // indirect
 	github.com/go-redsync/redsync/v4 v4.0.3
-	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gocarina/gocsv v0.0.0-20190617172706-c2ed51a5cbc5
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
-	github.com/jinzhu/gorm v1.9.9
+	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/now v1.0.1
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/oklog/ulid/v2 v2.0.2

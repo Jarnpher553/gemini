@@ -33,8 +33,8 @@ type IBaseService interface {
 
 	Use(*Handler)
 
-	Repo() repo.Repository
-	SetRepo(repo.Repository)
+	Repo() *repo.Repository
+	SetRepo(*repo.Repository)
 	Redis() *redis.RdClient
 	SetRedis(*redis.RdClient)
 	Mongo() *mongo.MgoClient
@@ -51,7 +51,7 @@ type IBaseService interface {
 }
 
 type BaseService struct {
-	repository  repo.Repository
+	repository  *repo.Repository
 	redisClient *redis.RdClient
 	mongoClient *mongo.MgoClient
 	client      *httpclient.ReqClient
@@ -72,6 +72,7 @@ type Interceptor struct {
 type NodeInfo struct {
 	Id       string
 	RootName string
+	AreaName string
 	Name     string
 	Port     string
 	Address  string
@@ -79,7 +80,7 @@ type NodeInfo struct {
 
 type Option func(service IBaseService)
 
-func Repository(repository repo.Repository) Option {
+func Repository(repository *repo.Repository) Option {
 	return func(service IBaseService) {
 		service.SetRepo(repository)
 	}
@@ -154,7 +155,7 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 	}
 
 	if bs.interceptor.Metric == nil {
-		bs.interceptor.Metric = metric.New(&metric.Config{ServiceName: name, Printer: metric.NewPrinter(), Freq: 1 * time.Minute})
+		bs.interceptor.Metric = metric.New(&metric.Config{Printer: metric.NewPrinter(), Freq: 1 * time.Minute})
 	}
 
 	if bs.interceptor.Cb == nil {
@@ -193,7 +194,7 @@ func (s *BaseService) SetClient(client *httpclient.ReqClient) {
 func (s *BaseService) Client() *httpclient.ReqClient {
 	if s.client == nil {
 		node := s.Node()
-		s.client = httpclient.New(httpclient.Tracer(s.Interceptor().Tracer), httpclient.Name(node.RootName+"."+node.Name))
+		s.client = httpclient.New(httpclient.Tracer(s.Interceptor().Tracer), httpclient.Name(node.RootName+"."+node.AreaName+"."+node.Name))
 	}
 	return s.client
 }
@@ -206,11 +207,11 @@ func (s *BaseService) SetNode(node *NodeInfo) {
 	s.node = node
 }
 
-func (s *BaseService) Repo() repo.Repository {
+func (s *BaseService) Repo() *repo.Repository {
 	return s.repository
 }
 
-func (s *BaseService) SetRepo(repository repo.Repository) {
+func (s *BaseService) SetRepo(repository *repo.Repository) {
 	s.repository = repository
 }
 

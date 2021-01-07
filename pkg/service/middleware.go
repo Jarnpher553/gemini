@@ -7,7 +7,8 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sony/gobreaker"
-	"runtime/debug"
+	"go.uber.org/zap"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +26,8 @@ type Middleware func(IBaseService) HandlerFunc
 // MetricMiddleware 指标监控中间件
 func MetricMiddleware(m *metric.Metric) Middleware {
 	return func(srv IBaseService) HandlerFunc {
+		name := srv.Node().RootName + "." + srv.Node().AreaName + "." + srv.Node().Name
+		m.SetName(name)
 		return func(context *Ctx) {
 			defer func(begin time.Time) {
 				m.ReqCount.Inc(1)
@@ -41,7 +44,7 @@ func TracerMiddleware(t *tracing.Tracer) Middleware {
 		return func(context *Ctx) {
 			sc, _ := t.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(context.Request.Header))
 
-			span := t.StartSpan(srv.Node().RootName+"."+srv.Node().Name,
+			span := t.StartSpan(srv.Node().RootName+"."+srv.Node().AreaName+"."+srv.Node().Name,
 				opentracing.ChildOf(sc),
 				ext.SpanKindRPCServer,
 				opentracing.StartTime(time.Now()),
@@ -71,9 +74,14 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 			_, err := cb.Execute(func() (i interface{}, e error) {
 				defer func() {
 					if err := recover(); err != nil {
-						action := strings.Split(ctx.Request.URL.Path, "/")
-						e = fmt.Errorf("%v service %s action %s", err, srv.Node().RootName, action[3]+"."+action[4])
-						log.Logger.Error(log.Messagef("err info: %s, track: %s", e, string(debug.Stack())))
+						e = fmt.Errorf("%v", err)
+						_, f, l, _ := runtime.Caller(2)
+						fSlice := strings.Split(f, "/")
+						f = strings.Join(fSlice[len(fSlice)-2:], "/")
+						log.Logger.Error("break",
+							zap.String("service", srv.Node().RootName+"."+srv.Node().AreaName+"."+srv.Node().Name),
+							zap.String("target", fmt.Sprintf("%s:%d", f, l)),
+							zap.Error(e))
 					}
 				}()
 				ctx.Next()
@@ -89,7 +97,7 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 				case gobreaker.StateHalfOpen:
 					ctx.Failure(erro.ErrMaxRequest, err)
 				}
-				log.Logger.Error(log.Messagef("err info: %s, track: %s", err.Error(), string(debug.Stack())))
+
 				ctx.Abort()
 				return
 			}

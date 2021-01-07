@@ -17,7 +17,6 @@ type Metric struct {
 }
 
 type Config struct {
-	ServiceName string
 	Printer     IPrinter
 	Freq        time.Duration
 }
@@ -29,7 +28,7 @@ type IPrinter interface {
 
 // New 构造函数
 func New(conf *Config) *Metric {
-	metric := &Metric{reg: metrics.NewRegistry(), name: conf.ServiceName}
+	metric := &Metric{reg: metrics.NewRegistry()}
 
 	reqCount := metrics.NewCounter()
 	reqDuration := metrics.NewCustomTimer(metrics.NewHistogram(metrics.NewUniformSample(255)), metrics.NewMeter())
@@ -52,6 +51,10 @@ func (metric *Metric) Start() {
 
 func (metric *Metric) Stop() {
 	metric.reg.UnregisterAll()
+}
+
+func (metric *Metric) SetName(name string) {
+	metric.name = name
 }
 
 func (metric *Metric) log() {

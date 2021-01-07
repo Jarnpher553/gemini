@@ -196,6 +196,7 @@ func (r *Router) doRegister(srv service.IBaseService) {
 			localRouter = r.Group(area)
 			r.groups[area] = localRouter
 		}
+		srv.Node().AreaName = area
 	} else {
 		localRouter = &r.Engine.RouterGroup
 	}
