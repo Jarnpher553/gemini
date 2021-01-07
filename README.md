@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	config.Args()
+	config.File()
 	c := config.Conf()
 
 	restServer := server.Default(server.Env(c.GetString("server.env")), server.Addr(c.GetString("server.addr")), server.Route(func() *router.Router {

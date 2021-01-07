@@ -4,7 +4,6 @@ import (
 	"flag"
 	"github.com/Jarnpher553/gemini/pkg/log"
 	"github.com/Jarnpher553/viper"
-	"os"
 )
 
 type Config = viper.Viper
@@ -66,6 +65,7 @@ func Provider(provider string, endpoint string, keyOrPath string) Option {
 
 func File() {
 	filename := flag.String("conf", "", "config file name")
+	sub := flag.String("sub", "", "multi sub of single config")
 	flag.Parse()
 
 	if *filename == "" {
@@ -73,24 +73,14 @@ func File() {
 	}
 
 	file(F(*filename))
-	conf = viper.GetViper()
-}
 
-func Args() string {
-	osArgs := os.Args
-
-	file(Path("."), Name("config"), Type("toml"))
-
-	var env string
-	if len(osArgs) == 2 {
-		env = osArgs[1]
+	if *sub != "" {
+		conf = viper.GetViper().Sub(*sub)
 	} else {
-		env = "dev"
+		conf = viper.GetViper()
 	}
-	conf = viper.GetViper().Sub(env)
 
 	if conf == nil {
-		logger.Fatal("the config of os args is nil")
+		logger.Fatal("sub of config is error")
 	}
-	return env
 }
