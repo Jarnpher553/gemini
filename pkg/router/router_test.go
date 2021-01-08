@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/Jarnpher553/gemini/pkg/service"
+	"github.com/Jarnpher553/gemini/pkg/service/annotation"
 	"testing"
 )
 
@@ -9,7 +10,7 @@ type TestService struct {
 	*service.BaseService
 }
 
-func (s *TestService) Use(handler *service.Handler) {
+func (s *TestService) Use(handler *annotation.Handler) {
 	handler.AreaN("a")
 	handler.BaseRoute("wo")
 }

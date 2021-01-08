@@ -2,6 +2,8 @@ package router
 
 import (
 	"fmt"
+	"github.com/Jarnpher553/gemini/pkg/service/annotation"
+	middleware2 "github.com/Jarnpher553/gemini/pkg/service/middleware"
 	"os"
 	"reflect"
 	"regexp"
@@ -178,9 +180,9 @@ func (r *Router) doRegister(srv service.IBaseService) {
 	node := srv.Node()
 
 	//获取服务全局中间件
-	var handler service.Handler
+	var handler annotation.Handler
 	handler.UseArea = r.area
-	srv.Use(&handler)
+	srv.Annotation(&handler)
 
 	var localRouter *gin.RouterGroup
 	if r.area && handler.UseArea {
@@ -202,11 +204,13 @@ func (r *Router) doRegister(srv service.IBaseService) {
 	}
 
 	var middleware []gin.HandlerFunc
-	for _, h := range handler.GinMiddleware {
-		middleware = append(middleware, h)
-	}
 	for _, m := range handler.Middleware {
-		middleware = append(middleware, service.Wrapper(m(srv)))
+		switch f := m.(type) {
+		case middleware2.Middleware:
+			middleware = append(middleware, service.Wrapper(f(srv)))
+		case gin.HandlerFunc:
+			middleware = append(middleware, f)
+		}
 	}
 
 	basePath := handler.BasePath
@@ -217,10 +221,10 @@ func (r *Router) doRegister(srv service.IBaseService) {
 	group := localRouter.Group(fmt.Sprintf("%s", basePath))
 
 	//服务注册中间件
-	group.Use(service.Wrapper(service.ReserveLimiterMiddleware(srv.Interceptor().Limiter)(srv)))
-	group.Use(service.Wrapper(service.BreakerMiddleware(srv.Interceptor().Cb)(srv)))
-	group.Use(service.Wrapper(service.MetricMiddleware(srv.Interceptor().Metric)(srv)))
-	group.Use(service.Wrapper(service.TracerMiddleware(srv.Interceptor().Tracer)(srv)))
+	group.Use(service.Wrapper(middleware2.ReserveLimiterMiddleware(srv.Interceptor().Limiter)(srv)))
+	group.Use(service.Wrapper(middleware2.BreakerMiddleware(srv.Interceptor().Cb)(srv)))
+	group.Use(service.Wrapper(middleware2.MetricMiddleware(srv.Interceptor().Metric)(srv)))
+	group.Use(service.Wrapper(middleware2.TracerMiddleware(srv.Interceptor().Tracer)(srv)))
 
 	//注册自定义中间件
 	group.Use(middleware...)
@@ -228,13 +232,13 @@ func (r *Router) doRegister(srv service.IBaseService) {
 	//获取服务类型所有方法
 	numMethod := serviceType.NumMethod()
 	for i := 0; i < numMethod; i++ {
-		var handler service.Handler
+		var handler annotation.Handler
 		method := serviceType.Method(i)
 		methodName := method.Name
 		_func := method.Func
 
 		//入参不满足
-		if _func.Type().NumIn() != 2 || _func.Type().In(1) != reflect.TypeOf(&service.Handler{}) {
+		if _func.Type().NumIn() != 2 || _func.Type().In(1) != reflect.TypeOf(&annotation.Handler{}) {
 			continue
 		}
 		//出参不满足
@@ -283,11 +287,13 @@ func (r *Router) doRegister(srv service.IBaseService) {
 			relativePath = handler.RelativePath
 		}
 		var middleware []gin.HandlerFunc
-		for _, h := range handler.GinMiddleware {
-			middleware = append(middleware, h)
-		}
 		for _, m := range handler.Middleware {
-			middleware = append(middleware, service.Wrapper(m(srv)))
+			switch f := m.(type) {
+			case middleware2.Middleware:
+				middleware = append(middleware, service.Wrapper(f(srv)))
+			case gin.HandlerFunc:
+				middleware = append(middleware, f)
+			}
 		}
 		middleware = append(middleware, service.Wrapper(ret[0].Interface().(service.HandlerFunc)))
 		group.Handle(httpMethod, relativePath, middleware...)

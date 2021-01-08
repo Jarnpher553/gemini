@@ -1,9 +1,15 @@
-package service
+package middleware
 
 import (
 	"errors"
 	"fmt"
+	"github.com/Jarnpher553/gemini/pkg/breaker"
+	"github.com/Jarnpher553/gemini/pkg/erro"
+	"github.com/Jarnpher553/gemini/pkg/limit"
 	"github.com/Jarnpher553/gemini/pkg/log"
+	"github.com/Jarnpher553/gemini/pkg/metric"
+	"github.com/Jarnpher553/gemini/pkg/service"
+	"github.com/Jarnpher553/gemini/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sony/gobreaker"
@@ -12,23 +18,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/Jarnpher553/gemini/pkg/breaker"
-	"github.com/Jarnpher553/gemini/pkg/erro"
-	"github.com/Jarnpher553/gemini/pkg/limit"
-	"github.com/Jarnpher553/gemini/pkg/metric"
-	"github.com/Jarnpher553/gemini/pkg/tracing"
 )
 
 // Middleware 中间件
-type Middleware func(IBaseService) HandlerFunc
+type Middleware func(service.IBaseService) service.HandlerFunc
 
 // MetricMiddleware 指标监控中间件
 func MetricMiddleware(m *metric.Metric) Middleware {
-	return func(srv IBaseService) HandlerFunc {
+	return func(srv service.IBaseService) service.HandlerFunc {
 		name := srv.Node().RootName + "." + srv.Node().AreaName + "." + srv.Node().Name
 		m.SetName(name)
-		return func(context *Ctx) {
+		return func(context *service.Ctx) {
 			defer func(begin time.Time) {
 				m.ReqCount.Inc(1)
 				m.ReqDuration.UpdateSince(begin)
@@ -40,8 +40,8 @@ func MetricMiddleware(m *metric.Metric) Middleware {
 
 // TracerMiddleware 服务跟踪中间件
 func TracerMiddleware(t *tracing.Tracer) Middleware {
-	return func(srv IBaseService) HandlerFunc {
-		return func(context *Ctx) {
+	return func(srv service.IBaseService) service.HandlerFunc {
+		return func(context *service.Ctx) {
 			sc, _ := t.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(context.Request.Header))
 
 			span := t.StartSpan(srv.Node().RootName+"."+srv.Node().AreaName+"."+srv.Node().Name,
@@ -69,8 +69,8 @@ func TracerMiddleware(t *tracing.Tracer) Middleware {
 
 // BreakerMiddleware 断路器中间件
 func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
-	return func(srv IBaseService) HandlerFunc {
-		return func(ctx *Ctx) {
+	return func(srv service.IBaseService) service.HandlerFunc {
+		return func(ctx *service.Ctx) {
 			_, err := cb.Execute(func() (i interface{}, e error) {
 				defer func() {
 					if err := recover(); err != nil {
@@ -107,8 +107,8 @@ func BreakerMiddleware(cb *breaker.CircuitBreaker) Middleware {
 
 // RateLimiterMiddleware 频率限制中间件
 func RateLimiterMiddleware(limiter *limit.Limiter) Middleware {
-	return func(srv IBaseService) HandlerFunc {
-		return func(ctx *Ctx) {
+	return func(srv service.IBaseService) service.HandlerFunc {
+		return func(ctx *service.Ctx) {
 			if !limiter.Allow() {
 				ctx.Failure(erro.ErrRateLimiter, errors.New("rate limit exceeded"))
 				ctx.Abort()
@@ -120,8 +120,8 @@ func RateLimiterMiddleware(limiter *limit.Limiter) Middleware {
 
 // DelayLimiterMiddleware 频率延迟中间件
 func DelayLimiterMiddleware(limiter *limit.Limiter) Middleware {
-	return func(srv IBaseService) HandlerFunc {
-		return func(ctx *Ctx) {
+	return func(srv service.IBaseService) service.HandlerFunc {
+		return func(ctx *service.Ctx) {
 			if err := limiter.Wait(ctx.Request.Context()); err != nil {
 				ctx.Failure(erro.ErrDelayLimiter, err)
 				ctx.Abort()
@@ -132,8 +132,8 @@ func DelayLimiterMiddleware(limiter *limit.Limiter) Middleware {
 }
 
 func ReserveLimiterMiddleware(limiter *limit.Limiter) Middleware {
-	return func(srv IBaseService) HandlerFunc {
-		return func(ctx *Ctx) {
+	return func(srv service.IBaseService) service.HandlerFunc {
+		return func(ctx *service.Ctx) {
 			r := limiter.Reserve()
 			if !r.OK() {
 				ctx.Failure(erro.ErrReserveLimiter, errors.New("lim.burst must to be > 0"))

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/Jarnpher553/gemini/pkg/service/annotation"
 	"net/http"
 	"reflect"
 	"strings"
@@ -21,17 +22,17 @@ import (
 )
 
 type IBaseService interface {
-	Get(*Handler) HandlerFunc
-	GetList(*Handler) HandlerFunc
-	Post(*Handler) HandlerFunc
-	Delete(*Handler) HandlerFunc
-	DeleteBatch(*Handler) HandlerFunc
-	Put(*Handler) HandlerFunc
-	Head(*Handler) HandlerFunc
-	Patch(*Handler) HandlerFunc
-	Options(*Handler) HandlerFunc
+	Get(*annotation.Handler) HandlerFunc
+	GetList(*annotation.Handler) HandlerFunc
+	Post(*annotation.Handler) HandlerFunc
+	Delete(*annotation.Handler) HandlerFunc
+	DeleteBatch(*annotation.Handler) HandlerFunc
+	Put(*annotation.Handler) HandlerFunc
+	Head(*annotation.Handler) HandlerFunc
+	Patch(*annotation.Handler) HandlerFunc
+	Options(*annotation.Handler) HandlerFunc
 
-	Use(*Handler)
+	Annotation(*annotation.Handler)
 
 	Repo() *repo.Repository
 	SetRepo(*repo.Repository)
@@ -167,7 +168,7 @@ func NewService(service IBaseService, option ...Option) IBaseService {
 	return service
 }
 
-func (s *BaseService) Use(handler *Handler) {
+func (s *BaseService) Annotation(handler *annotation.Handler) {
 	return
 }
 
@@ -234,55 +235,55 @@ func (s *BaseService) SetCustomContext(key string, value interface{}) {
 	s.customContext[key] = value
 }
 
-func (s *BaseService) Get(handler *Handler) HandlerFunc {
+func (s *BaseService) Get(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) GetList(handler *Handler) HandlerFunc {
+func (s *BaseService) GetList(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) Post(handler *Handler) HandlerFunc {
+func (s *BaseService) Post(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) Delete(handler *Handler) HandlerFunc {
+func (s *BaseService) Delete(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) DeleteBatch(handler *Handler) HandlerFunc {
+func (s *BaseService) DeleteBatch(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) Put(handler *Handler) HandlerFunc {
+func (s *BaseService) Put(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) Head(handler *Handler) HandlerFunc {
+func (s *BaseService) Head(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) Patch(handler *Handler) HandlerFunc {
+func (s *BaseService) Patch(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
 }
 
-func (s *BaseService) Options(handler *Handler) HandlerFunc {
+func (s *BaseService) Options(handler *annotation.Handler) HandlerFunc {
 	return func(ctx *Ctx) {
 		ctx.String(http.StatusNotFound, "404 page not found")
 	}
